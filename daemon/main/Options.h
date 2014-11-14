@@ -33,6 +33,7 @@
 
 #include "Thread.h"
 #include "Util.h"
+#include "SharingStatus.h"
 
 class Options
 {
@@ -244,6 +245,7 @@ private:
 	Categories			m_Categories;
 	Scripts				m_Scripts;
 	ConfigTemplates		m_ConfigTemplates;
+	SharingStatus*                  m_SharingStatus;
 
 	// Options
 	bool				m_bConfigErrors;
@@ -338,6 +340,9 @@ private:
 	int					m_iPropagationDelay;
 	int					m_iArticleCache;
 	int					m_iEventInterval;
+	char*                           m_szSharingStatusUrl;
+	char*                           m_szSharingStatusName;
+	int                             m_iSharingStatusPollInterval;
 
 	// Parsed command-line parameters
 	bool				m_bServerMode;
@@ -542,8 +547,9 @@ public:
 	bool				GetTestBacktrace() { return m_bTestBacktrace; }
 
 	// Current state
-	void				SetPauseDownload(bool bPauseDownload) { m_bPauseDownload = bPauseDownload; }
+	void				SetPauseDownload(bool bPauseDownload);
 	bool				GetPauseDownload() const { return m_bPauseDownload; }
+	void                            CheckPauseDownload(bool bHasJob);
 	void				SetPausePostProcess(bool bPausePostProcess) { m_bPausePostProcess = bPausePostProcess; }
 	bool				GetPausePostProcess() const { return m_bPausePostProcess; }
 	void				SetPauseScan(bool bPauseScan) { m_bPauseScan = bPauseScan; }

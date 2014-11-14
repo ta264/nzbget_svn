@@ -50,6 +50,8 @@ nzbget_SOURCES = \
 	daemon/main/nzbget.h \
 	daemon/main/Options.cpp \
 	daemon/main/Options.h \
+	daemon/main/SharingStatus.cpp \
+	daemon/main/SharingStatus.h \
 	daemon/main/Scheduler.cpp \
 	daemon/main/Scheduler.h \
 	daemon/main/StackTrace.cpp \
@@ -232,8 +234,7 @@ doc_FILES = \
 	README \
 	ChangeLog \
 	COPYING \
-	lib/par2/AUTHORS \
-	lib/par2/README
+	lib/par2/AUTHORS
 
 exampleconf_FILES = \
 	nzbget.conf
