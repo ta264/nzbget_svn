@@ -187,6 +187,9 @@ static const char* OPTION_TIMECORRECTION		= "TimeCorrection";
 static const char* OPTION_PROPAGATIONDELAY		= "PropagationDelay";
 static const char* OPTION_ARTICLECACHE			= "ArticleCache";
 static const char* OPTION_EVENTINTERVAL			= "EventInterval";
+static const char* OPTION_SHARINGSTATUSURL		= "SharingStatusUrl";
+static const char* OPTION_SHARINGSTATUSNAME		= "SharingStatusName";
+static const char* OPTION_SHARINGSTATUSPOLLINTERVAL	= "SharingStatusPollInterval";
 
 // obsolete options
 static const char* OPTION_POSTLOGKIND			= "PostLogKind";
@@ -470,7 +473,7 @@ Options::Options(int argc, char* argv[])
 	m_eDebugTarget			= mtScreen;
 	m_eDetailTarget			= mtScreen;
 	m_bDecode				= true;
-	m_bPauseDownload		= false;
+	m_bPauseDownload		= true;
 	m_bPausePostProcess		= false;
 	m_bPauseScan			= false;
 	m_bTempPauseDownload	= false;
@@ -572,6 +575,9 @@ Options::Options(int argc, char* argv[])
 	m_iPropagationDelay		= 0;
 	m_iArticleCache			= 0;
 	m_iEventInterval		= 0;
+	m_szSharingStatusUrl            = NULL;
+	m_szSharingStatusName           = NULL;
+	m_iSharingStatusPollInterval    = 0;
 
 	// Option "ConfigFile" will be initialized later, but we want
 	// to see it at the top of option list, so we add it first
@@ -636,6 +642,11 @@ Options::Options(int argc, char* argv[])
 	InitFeeds();
 	InitScripts();
 	InitConfigTemplates();
+	
+	m_SharingStatus = new SharingStatus(m_szSharingStatusName,
+					    m_szSharingStatusUrl,
+					    m_szTempDir,
+					    m_iSharingStatusPollInterval);
 
 	if (m_bPrintOptions)
 	{
@@ -686,6 +697,10 @@ Options::~Options()
 	free(m_szSevenZipCmd);
 	free(m_szExtCleanupDisk);
 	free(m_szParIgnoreExt);
+	free(m_szSharingStatusUrl);
+	free(m_szSharingStatusName);
+
+	delete m_SharingStatus;
 
 	for (NameList::iterator it = m_EditQueueNameList.begin(); it != m_EditQueueNameList.end(); it++)
 	{
@@ -846,6 +861,9 @@ void Options::InitDefault()
 	SetOption(OPTION_PROPAGATIONDELAY, "0");
 	SetOption(OPTION_ARTICLECACHE, "0");
 	SetOption(OPTION_EVENTINTERVAL, "0");
+	SetOption(OPTION_SHARINGSTATUSURL, "");
+	SetOption(OPTION_SHARINGSTATUSNAME, "");
+	SetOption(OPTION_SHARINGSTATUSPOLLINTERVAL, "");
 }
 
 void Options::InitOptFile()
@@ -1010,6 +1028,8 @@ void Options::InitOptions()
 	m_szSevenZipCmd			= strdup(GetOption(OPTION_SEVENZIPCMD));
 	m_szExtCleanupDisk		= strdup(GetOption(OPTION_EXTCLEANUPDISK));
 	m_szParIgnoreExt		= strdup(GetOption(OPTION_PARIGNOREEXT));
+	m_szSharingStatusUrl            = strdup(GetOption(OPTION_SHARINGSTATUSURL));
+	m_szSharingStatusName           = strdup(GetOption(OPTION_SHARINGSTATUSNAME));
 
 	m_iDownloadRate			= (int)(ParseFloatValue(OPTION_DOWNLOADRATE) * 1024);
 	m_iArticleTimeout		= ParseIntValue(OPTION_ARTICLETIMEOUT, 10);
@@ -1042,6 +1062,7 @@ void Options::InitOptions()
 	m_iEventInterval		= ParseIntValue(OPTION_EVENTINTERVAL, 10);
 	m_iParBuffer			= ParseIntValue(OPTION_PARBUFFER, 10);
 	m_iParThreads			= ParseIntValue(OPTION_PARTHREADS, 10);
+	m_iSharingStatusPollInterval    = ParseIntValue(OPTION_SHARINGSTATUSPOLLINTERVAL, 10);
 
 	CheckDir(&m_szNzbDir, OPTION_NZBDIR, szMainDir, m_iNzbDirInterval == 0, true);
 
@@ -3312,4 +3333,14 @@ void Options::BuildScriptDisplayNames(Scripts* pScripts)
 
 		pScript->SetDisplayName(szDisplayName);
 	}
+}
+
+void Options::SetPauseDownload(bool bPauseDownload) 
+{
+	m_bPauseDownload = m_SharingStatus->ChangePauseState(m_bPauseDownload, bPauseDownload);
+}
+
+void Options::CheckPauseDownload(bool bHasJob)
+{
+	m_bPauseDownload = m_SharingStatus->CheckPauseState(m_bPauseDownload, bHasJob);
 }
