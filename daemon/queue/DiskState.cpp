@@ -51,21 +51,6 @@ extern Options* g_pOptions;
 
 static const char* FORMATVERSION_SIGNATURE = "nzbget diskstate file version ";
 
-#ifdef WIN32
-// Windows doesn't have standard "vsscanf"
-// Hack from http://stackoverflow.com/questions/2457331/replacement-for-vsscanf-on-msvc
-int vsscanf(const char *s, const char *fmt, va_list ap)
-{
-	// up to max 10 arguments
-	void *a[10];
-	for (int i = 0; i < sizeof(a)/sizeof(a[0]); i++)
-	{
-		a[i] = va_arg(ap, void*);
-	}
-	return sscanf(s, fmt, a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], a[9]);
-}
-#endif
-
 /*
  * Standard fscanf scans beoynd current line if the next line is empty.
  * This wrapper fixes that.
