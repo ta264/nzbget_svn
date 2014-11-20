@@ -6,6 +6,10 @@
 #include <string>
 #include <time.h>
 
+#ifdef WIN32
+#include "win32.h"
+#endif
+
 #include "nzbget.h"
 #include "DownloadInfo.h"
 #include "WebDownloader.h"
