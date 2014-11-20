@@ -220,7 +220,7 @@ are provided. If you use MS Visual C++ 2005 Express you need to download
 and install Platform SDK.
 
 To compile the program with TLS/SSL support you need either OpenSSL or GnuTLS:
-   - OpenSSL  (http://www.openssl.org)
+   - OpenSSL  (http://slproweb.com/products/Win32OpenSSL.html)
    or
    - GnuTLS   (http://www.gnu.org/software/gnutls)
 
