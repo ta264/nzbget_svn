@@ -193,9 +193,20 @@ windows_FILES = \
 	daemon/windows/NTService.cpp \
 	daemon/windows/NTService.h \
 	daemon/windows/win32.h \
+	daemon/windows/WinConsole.cpp \
+	daemon/windows/WinConsole.h \
 	nzbget.sln \
 	nzbget.vcproj \
-	nzbget-shell.bat
+	nzbget-shell.bat  \
+	windows/resources/mainicon.ico \
+	windows/resources/nzbget.rc \
+	windows/resources/resource.h \
+	windows/resources/trayicon_idle.ico \
+	windows/resources/trayicon_paused.ico \
+	windows/resources/trayicon_working.ico \
+	windows/setup/nzbget-setup.nsi \
+	windows/setup/install.bmp \
+	windows/setup/uninstall.bmp
 
 osx_FILES = \
 	osx/App_Prefix.pch \
@@ -221,8 +232,6 @@ osx_FILES = \
 	osx/Resources/Images/mainicon.icns \
 	osx/Resources/Images/statusicon.png \
 	osx/Resources/Images/statusicon@2x.png \
-	osx/Resources/Images/statusicon-inv.png \
-	osx/Resources/Images/statusicon-inv@2x.png \
 	osx/Resources/licenses/license-bootstrap.txt \
 	osx/Resources/licenses/license-jquery-GPL.txt \
 	osx/Resources/licenses/license-jquery-MIT.txt \

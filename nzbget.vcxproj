@@ -52,14 +52,12 @@
     <OutDir>..\bin\</OutDir>
     <IntDir>..\bin\Debug\</IntDir>
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Program Files %28x86%29\OpenSSL-Win32\include;C:\Program Files %28x86%29\GnuWin32\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files %28x86%29\OpenSSL-Win32\lib\VC;C:\Program Files %28x86%29\GnuWin32\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>..\bin\</OutDir>
     <IntDir>..\bin\Release\</IntDir>
     <LinkIncremental />
-    <IncludePath>C:\Program Files %28x86%29\OpenSSL-Win32\include;C:\Program Files %28x86%29\GnuWin32\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Program Files %28x86%29\GnuWin32\include;C:\Program Files %28x86%29\OpenSSL-Win32\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files %28x86%29\GnuWin32\lib;C:\Program Files %28x86%29\OpenSSL-Win32\lib\VC;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release (no TLS)|Win32'">
@@ -70,7 +68,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.\daemon\connect;.\daemon\feed;.\daemon\frontend;.\daemon\main;.\daemon\nntp;.\daemon\postprocess;.\daemon\queue;.\daemon\remote;.\daemon\util;.\daemon\windows;.\lib\par2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\daemon\connect;.\daemon\feed;.\daemon\frontend;.\daemon\main;.\daemon\nntp;.\daemon\postprocess;.\daemon\queue;.\daemon\remote;.\daemon\util;.\daemon\windows;.\lib\par2;.\windows\resources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;DEBUG;_WIN32_WINNT=0x0403;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -81,7 +79,7 @@
       <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>WS2_32.lib;ole32.lib;OleAut32.Lib;comsuppwd.lib;Advapi32.lib;Winmm.lib;dbghelp.lib;ssleay32MTd.lib;libeay32MTd.lib;regex.lib;zlib.lib</AdditionalDependencies>
+      <AdditionalDependencies>WS2_32.lib;ole32.lib;OleAut32.Lib;comsuppwd.lib;Advapi32.lib;Winmm.lib;gdi32.lib;shell32.lib;dbghelp.lib;ssleay32MTd.lib;libeay32MTd.lib;regex.lib;zlib.lib</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
@@ -89,7 +87,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.\daemon\connect;.\daemon\feed;.\daemon\frontend;.\daemon\main;.\daemon\nntp;.\daemon\postprocess;.\daemon\queue;.\daemon\remote;.\daemon\util;.\daemon\windows;.\lib\par2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\daemon\connect;.\daemon\feed;.\daemon\frontend;.\daemon\main;.\daemon\nntp;.\daemon\postprocess;.\daemon\queue;.\daemon\remote;.\daemon\util;.\daemon\windows;.\lib\par2;.\windows\resources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_WIN32_WINNT=0x0403;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -99,7 +97,7 @@
       <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>WS2_32.lib;ole32.lib;OleAut32.Lib;comsuppwd.lib;Advapi32.lib;Winmm.lib;ssleay32MT.lib;libeay32MT.lib;regex.lib;zlib.lib</AdditionalDependencies>
+      <AdditionalDependencies>WS2_32.lib;ole32.lib;OleAut32.Lib;comsuppwd.lib;Advapi32.lib;gdi32.lib;shell32.lib;Winmm.lib;ssleay32MT.lib;libeay32MT.lib;regex.lib;zlib.lib</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -183,6 +181,7 @@
     <ClCompile Include="daemon\util\Thread.cpp" />
     <ClCompile Include="daemon\util\Util.cpp" />
     <ClCompile Include="daemon\windows\NTService.cpp" />
+    <ClCompile Include="daemon\windows\WinConsole.cpp" />
     <ClCompile Include="lib\par2\commandline.cpp" />
     <ClCompile Include="lib\par2\crc.cpp" />
     <ClCompile Include="lib\par2\creatorpacket.cpp">
@@ -262,6 +261,7 @@
     <ClInclude Include="daemon\util\Util.h" />
     <ClInclude Include="daemon\windows\NTService.h" />
     <ClInclude Include="daemon\windows\win32.h" />
+    <ClInclude Include="daemon\windows\WinConsole.h" />
     <ClInclude Include="lib\par2\commandline.h" />
     <ClInclude Include="lib\par2\crc.h" />
     <ClInclude Include="lib\par2\creatorpacket.h" />
@@ -284,6 +284,16 @@
     <ClInclude Include="lib\par2\reedsolomon.h" />
     <ClInclude Include="lib\par2\verificationhashtable.h" />
     <ClInclude Include="lib\par2\verificationpacket.h" />
+    <ClInclude Include="windows\resources\resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="windows\resources\mainicon.ico" />
+    <Image Include="windows\resources\trayicon_idle.ico" />
+    <Image Include="windows\resources\trayicon_paused.ico" />
+    <Image Include="windows\resources\trayicon_working.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="windows\resources\nzbget.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

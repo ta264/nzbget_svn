@@ -96,11 +96,12 @@ void UnpackController::Run()
 	strncpy(m_szName, m_pPostInfo->GetNZBInfo()->GetName(), 1024);
 	m_szName[1024-1] = '\0';
 
+	m_bUnpackPasswordError4 = true;
 	m_bCleanedUpDisk = false;
 	m_szPassword[0] = '\0';
 	m_szFinalDir[0] = '\0';
 	m_bFinalDirCreated = false;
-	
+
 	NZBParameter* pParameter = m_pPostInfo->GetNZBInfo()->GetParameters()->Find("*Unpack:", false);
 	bool bUnpack = !(pParameter && !strcasecmp(pParameter->GetValue(), "no"));
 
@@ -136,16 +137,16 @@ void UnpackController::Run()
 
 	if (bUnpack && bHasFiles)
 	{
-		PrintMessage(Message::mkInfo, "Unpacking %s", m_szName);
-
-		CreateUnpackDir();
-
 		m_bUnpackOK = true;
 		m_bUnpackStartError = false;
 		m_bUnpackSpaceError = false;
 		m_bUnpackPasswordError4 = false;
 		m_bUnpackPasswordError5 = false;
 		m_bAutoTerminated = false;
+
+		PrintMessage(Message::mkInfo, "Unpacking %s", m_szName);
+
+		CreateUnpackDir();
 
 		if (m_bHasRarFiles || m_bHasNonStdRarFiles)
 		{
@@ -209,11 +210,17 @@ void UnpackController::ExecuteUnrar()
 	if (strlen(m_szPassword) > 0)
 	{
 		snprintf(szPasswordParam, 1024, "-p%s", m_szPassword);
+		szPasswordParam[1024-1] = '\0';
 		szArgs[3] = szPasswordParam;
 	}
 	szArgs[4] = "-o+";
 	szArgs[5] = m_bHasNonStdRarFiles ? "*.*" : "*.rar";
-	szArgs[6] = m_szUnpackDir;
+
+	char szUnpackDirParam[1024];
+	snprintf(szUnpackDirParam, 1024, "%s%c", m_szUnpackDir, PATH_SEPARATOR);
+	szUnpackDirParam[1024-1] = '\0';
+	szArgs[6] = szUnpackDirParam;
+
 	szArgs[7] = NULL;
 	SetArgs(szArgs, false);
 
@@ -256,11 +263,13 @@ void UnpackController::ExecuteSevenZip(bool bMultiVolumes)
 	if (strlen(m_szPassword) > 0)
 	{
 		snprintf(szPasswordParam, 1024, "-p%s", m_szPassword);
+		szPasswordParam[1024-1] = '\0';
 		szArgs[3] = szPasswordParam;
 	}
 
 	char szUnpackDirParam[1024];
 	snprintf(szUnpackDirParam, 1024, "-o%s", m_szUnpackDir);
+	szUnpackDirParam[1024-1] = '\0';
 	szArgs[4] = szUnpackDirParam;
 
 	szArgs[5] = bMultiVolumes ? "*.7z.001" : "*.7z";

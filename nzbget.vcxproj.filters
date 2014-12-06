@@ -2,43 +2,46 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="daemon">
-      <UniqueIdentifier>{ae9a7d69-26d4-49bb-85ca-2a6ad8dd1f3f}</UniqueIdentifier>
+      <UniqueIdentifier>{79f0dd6d-3dab-4f0a-ba81-c3a8f549c896}</UniqueIdentifier>
     </Filter>
     <Filter Include="daemon\connect">
-      <UniqueIdentifier>{15bcf069-d6af-48b9-858f-50e145174f8c}</UniqueIdentifier>
+      <UniqueIdentifier>{01f8fbd3-154b-4ab0-a538-205b5b411749}</UniqueIdentifier>
     </Filter>
     <Filter Include="daemon\main">
-      <UniqueIdentifier>{b565cc9b-1141-420b-8315-ce99ff49b4c8}</UniqueIdentifier>
+      <UniqueIdentifier>{19f8c838-53bc-482d-b9a5-63ae1316f622}</UniqueIdentifier>
     </Filter>
     <Filter Include="daemon\feed">
-      <UniqueIdentifier>{a1912495-7422-459d-ba4f-9ee0b94c9e30}</UniqueIdentifier>
+      <UniqueIdentifier>{1184e385-1616-420c-85fe-dc44a47a6116}</UniqueIdentifier>
     </Filter>
     <Filter Include="daemon\frontend">
-      <UniqueIdentifier>{3f515823-3cbd-413a-98b5-18eb94b54dd3}</UniqueIdentifier>
+      <UniqueIdentifier>{0ee1a081-5948-4ab4-b0c1-f1bd3243cc86}</UniqueIdentifier>
     </Filter>
     <Filter Include="daemon\nntp">
-      <UniqueIdentifier>{8ffa8578-48ab-40f2-81c3-85893e569a48}</UniqueIdentifier>
+      <UniqueIdentifier>{5261d57c-c0b4-4f79-8032-ae2c1e5899c7}</UniqueIdentifier>
     </Filter>
     <Filter Include="daemon\windows">
-      <UniqueIdentifier>{4eb80d1a-21ba-4ea6-8abb-5243e9d7c5af}</UniqueIdentifier>
+      <UniqueIdentifier>{5938d86b-a28b-46d5-8c92-63e69c141edc}</UniqueIdentifier>
     </Filter>
     <Filter Include="daemon\postprocess">
-      <UniqueIdentifier>{26f84d5f-6df3-4670-a1ca-c9c5feb13c6f}</UniqueIdentifier>
+      <UniqueIdentifier>{cd1d0130-22cf-466a-85cd-a18767ef56fc}</UniqueIdentifier>
     </Filter>
     <Filter Include="daemon\queue">
-      <UniqueIdentifier>{9c24fc7c-74c2-4171-b1a8-954cc6d0197b}</UniqueIdentifier>
+      <UniqueIdentifier>{a4d0591a-16b8-446e-8445-b959f5269037}</UniqueIdentifier>
     </Filter>
     <Filter Include="daemon\remote">
-      <UniqueIdentifier>{d1367c79-226d-4d05-877d-20606e3959e9}</UniqueIdentifier>
+      <UniqueIdentifier>{ea4ca24f-d70d-4e7d-9bf6-efab078e3bfe}</UniqueIdentifier>
     </Filter>
     <Filter Include="daemon\util">
-      <UniqueIdentifier>{54ab7cad-459f-410b-8ab8-4e1a4cfc7900}</UniqueIdentifier>
+      <UniqueIdentifier>{cc35e6b1-0e85-4229-9393-e8583d4255fc}</UniqueIdentifier>
     </Filter>
     <Filter Include="lib">
-      <UniqueIdentifier>{62d96b5d-f6f9-4b8a-92a0-85c37df8312d}</UniqueIdentifier>
+      <UniqueIdentifier>{a463d3f6-db5d-4dcd-810d-235058cbb507}</UniqueIdentifier>
     </Filter>
     <Filter Include="lib\par2">
-      <UniqueIdentifier>{0b0eb805-d6a2-451e-aa38-e491948ddc3d}</UniqueIdentifier>
+      <UniqueIdentifier>{91f7e9e7-375d-4668-84bf-a790f5064703}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resources">
+      <UniqueIdentifier>{9aa5e01a-45fe-43de-b219-1c524b7113bd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -112,6 +115,9 @@
       <Filter>daemon\nntp</Filter>
     </ClCompile>
     <ClCompile Include="daemon\windows\NTService.cpp">
+      <Filter>daemon\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\windows\WinConsole.cpp">
       <Filter>daemon\windows</Filter>
     </ClCompile>
     <ClCompile Include="daemon\postprocess\ParChecker.cpp">
@@ -332,6 +338,9 @@
     <ClInclude Include="daemon\windows\win32.h">
       <Filter>daemon\windows</Filter>
     </ClInclude>
+    <ClInclude Include="daemon\windows\WinConsole.h">
+      <Filter>daemon\windows</Filter>
+    </ClInclude>
     <ClInclude Include="daemon\postprocess\ParChecker.h">
       <Filter>daemon\postprocess</Filter>
     </ClInclude>
@@ -479,8 +488,30 @@
     <ClInclude Include="lib\par2\verificationpacket.h">
       <Filter>lib\par2</Filter>
     </ClInclude>
+    <ClInclude Include="windows\resources\resource.h">
+      <Filter>resources</Filter>
+    </ClInclude>
     <ClInclude Include="daemon\main\SharingStatus.h">
       <Filter>daemon\main</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="windows\resources\mainicon.ico">
+      <Filter>resources</Filter>
+    </Image>
+    <Image Include="windows\resources\trayicon_idle.ico">
+      <Filter>resources</Filter>
+    </Image>
+    <Image Include="windows\resources\trayicon_paused.ico">
+      <Filter>resources</Filter>
+    </Image>
+    <Image Include="windows\resources\trayicon_working.ico">
+      <Filter>resources</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="windows\resources\nzbget.rc">
+      <Filter>resources</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>
