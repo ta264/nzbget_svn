@@ -12,7 +12,7 @@ SharingStatus::SharingStatus(char* szMyName, char* szStatusUrl, char* szTempDir,
 }
 
 SharingStatus::~SharingStatus() {
-	detail("SharingStatus: Calling destructor - pausing");
+	info("SharingStatus: Calling destructor - pausing");
 	Pause();
 }
 
@@ -30,7 +30,7 @@ std::string SharingStatus::readUrl(std::string url)
 
 	// url to query
 	char szInfoName[] = "StatusURL";
-	detail("Downloading URL: %s", url.c_str());
+	info("Downloading URL: %s", url.c_str());
 
 	WebDownloader* pDownloader = new WebDownloader();
 	pDownloader->SetURL(url.c_str());
@@ -80,12 +80,12 @@ bool SharingStatus::TryResume()
 	// m_bPollResume = true;
 	if (reply == "ok")
 	{
-		detail("SharingStatus: resume allowed");
+		info("SharingStatus: resume allowed");
 		return true;
 	}
 	else
 	{
-		detail("SharingStatus: busy, resume not allowed");
+		info("SharingStatus: busy, resume not allowed");
 		return false;
 	}
 }
