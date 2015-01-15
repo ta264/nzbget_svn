@@ -1,10 +1,11 @@
 #include "SharingStatus.h"
 
-SharingStatus::SharingStatus(char* szMyName, char* szStatusUrl, char* szTempDir, int iPollInterval) {
+SharingStatus::SharingStatus(char* szMyName, char* szStatusUrl, char* szTempDir, int iPollInterval, bool bRemoteClientMode) {
 	m_szMyName.assign(szMyName);
 	m_szStatusUrl.assign(szStatusUrl);
 	m_szTempDir.assign(szTempDir);
 	m_dPollInterval = (double) iPollInterval;
+	m_bRemoteClientMode = bRemoteClientMode;
 
 	// defaults
 	m_bPollResume = true;
@@ -12,8 +13,11 @@ SharingStatus::SharingStatus(char* szMyName, char* szStatusUrl, char* szTempDir,
 }
 
 SharingStatus::~SharingStatus() {
-	info("SharingStatus: Calling destructor - pausing");
-	Pause();
+	if (!m_bRemoteClientMode)
+	{
+		info("SharingStatus: Calling destructor - pausing");
+		Pause();
+	}
 }
 
 std::string SharingStatus::readUrl(std::string url)
