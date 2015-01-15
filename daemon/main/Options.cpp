@@ -646,7 +646,8 @@ Options::Options(int argc, char* argv[])
 	m_SharingStatus = new SharingStatus(m_szSharingStatusName,
 					    m_szSharingStatusUrl,
 					    m_szTempDir,
-					    m_iSharingStatusPollInterval);
+					    m_iSharingStatusPollInterval,
+		                            m_bRemoteClientMode);
 
 	if (m_bPrintOptions)
 	{
