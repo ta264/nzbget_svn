@@ -1,0 +1,511 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="daemon">
+      <UniqueIdentifier>{0a46e69a-29f0-4af2-b069-1b5713606d7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="daemon\connect">
+      <UniqueIdentifier>{7ec77d4e-4fd3-4714-9683-75dacb27c762}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="daemon\main">
+      <UniqueIdentifier>{dc92d362-3d25-4467-96bc-2a969f515eb4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="daemon\feed">
+      <UniqueIdentifier>{5d8248dc-1942-4d47-8ec1-88649dbfb560}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="daemon\frontend">
+      <UniqueIdentifier>{ed00f1ef-bcba-464f-a2d9-288cacc54976}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="daemon\nntp">
+      <UniqueIdentifier>{ec0b791e-8056-409c-afe6-447988846131}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="daemon\windows">
+      <UniqueIdentifier>{ed7f73cd-110d-419c-ad75-305d8dc8dca2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="daemon\postprocess">
+      <UniqueIdentifier>{3587e332-3e46-467b-afd2-57070f126fa4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="daemon\queue">
+      <UniqueIdentifier>{3e2d11c8-e9cc-49dd-978b-14a176257c5b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="daemon\remote">
+      <UniqueIdentifier>{55f0fef2-adcd-47ad-a32b-a7be07f286c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="daemon\util">
+      <UniqueIdentifier>{7d658049-8cec-480b-909d-17e28f2196ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib">
+      <UniqueIdentifier>{80c1bb66-a951-4225-b560-45bbb75fe88c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\par2">
+      <UniqueIdentifier>{9833b3f2-524d-48d6-ba18-2c4c5cfbc7d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resources">
+      <UniqueIdentifier>{f84b93c9-a196-4122-9bcd-c29e556fbff1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="daemon\connect\Connection.cpp">
+      <Filter>daemon\connect</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\connect\TLS.cpp">
+      <Filter>daemon\connect</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\connect\WebDownloader.cpp">
+      <Filter>daemon\connect</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\main\Maintenance.cpp">
+      <Filter>daemon\main</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\main\nzbget.cpp">
+      <Filter>daemon\main</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\main\Options.cpp">
+      <Filter>daemon\main</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\main\Scheduler.cpp">
+      <Filter>daemon\main</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\main\StackTrace.cpp">
+      <Filter>daemon\main</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\feed\FeedCoordinator.cpp">
+      <Filter>daemon\feed</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\feed\FeedFile.cpp">
+      <Filter>daemon\feed</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\feed\FeedFilter.cpp">
+      <Filter>daemon\feed</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\feed\FeedInfo.cpp">
+      <Filter>daemon\feed</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\frontend\ColoredFrontend.cpp">
+      <Filter>daemon\frontend</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\frontend\Frontend.cpp">
+      <Filter>daemon\frontend</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\frontend\LoggableFrontend.cpp">
+      <Filter>daemon\frontend</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\frontend\NCursesFrontend.cpp">
+      <Filter>daemon\frontend</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\nntp\ArticleDownloader.cpp">
+      <Filter>daemon\nntp</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\nntp\ArticleWriter.cpp">
+      <Filter>daemon\nntp</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\nntp\Decoder.cpp">
+      <Filter>daemon\nntp</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\nntp\NewsServer.cpp">
+      <Filter>daemon\nntp</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\nntp\NNTPConnection.cpp">
+      <Filter>daemon\nntp</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\nntp\ServerPool.cpp">
+      <Filter>daemon\nntp</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\nntp\StatMeter.cpp">
+      <Filter>daemon\nntp</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\windows\NTService.cpp">
+      <Filter>daemon\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\windows\WinConsole.cpp">
+      <Filter>daemon\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\postprocess\ParChecker.cpp">
+      <Filter>daemon\postprocess</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\postprocess\ParCoordinator.cpp">
+      <Filter>daemon\postprocess</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\postprocess\ParRenamer.cpp">
+      <Filter>daemon\postprocess</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\postprocess\PostScript.cpp">
+      <Filter>daemon\postprocess</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\postprocess\PrePostProcessor.cpp">
+      <Filter>daemon\postprocess</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\postprocess\Unpack.cpp">
+      <Filter>daemon\postprocess</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\queue\DiskState.cpp">
+      <Filter>daemon\queue</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\queue\DownloadInfo.cpp">
+      <Filter>daemon\queue</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\queue\DupeCoordinator.cpp">
+      <Filter>daemon\queue</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\queue\HistoryCoordinator.cpp">
+      <Filter>daemon\queue</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\queue\NZBFile.cpp">
+      <Filter>daemon\queue</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\queue\QueueCoordinator.cpp">
+      <Filter>daemon\queue</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\queue\QueueEditor.cpp">
+      <Filter>daemon\queue</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\queue\QueueScript.cpp">
+      <Filter>daemon\queue</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\queue\Scanner.cpp">
+      <Filter>daemon\queue</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\queue\UrlCoordinator.cpp">
+      <Filter>daemon\queue</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\remote\BinRpc.cpp">
+      <Filter>daemon\remote</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\remote\RemoteClient.cpp">
+      <Filter>daemon\remote</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\remote\RemoteServer.cpp">
+      <Filter>daemon\remote</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\remote\WebServer.cpp">
+      <Filter>daemon\remote</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\remote\XmlRpc.cpp">
+      <Filter>daemon\remote</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\util\Log.cpp">
+      <Filter>daemon\util</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\util\Observer.cpp">
+      <Filter>daemon\util</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\util\Script.cpp">
+      <Filter>daemon\util</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\util\Thread.cpp">
+      <Filter>daemon\util</Filter>
+    </ClCompile>
+    <ClCompile Include="daemon\util\Util.cpp">
+      <Filter>daemon\util</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\par2\commandline.cpp">
+      <Filter>lib\par2</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\par2\crc.cpp">
+      <Filter>lib\par2</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\par2\creatorpacket.cpp">
+      <Filter>lib\par2</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\par2\criticalpacket.cpp">
+      <Filter>lib\par2</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\par2\datablock.cpp">
+      <Filter>lib\par2</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\par2\descriptionpacket.cpp">
+      <Filter>lib\par2</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\par2\diskfile.cpp">
+      <Filter>lib\par2</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\par2\filechecksummer.cpp">
+      <Filter>lib\par2</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\par2\galois.cpp">
+      <Filter>lib\par2</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\par2\mainpacket.cpp">
+      <Filter>lib\par2</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\par2\md5.cpp">
+      <Filter>lib\par2</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\par2\par2creatorsourcefile.cpp">
+      <Filter>lib\par2</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\par2\par2fileformat.cpp">
+      <Filter>lib\par2</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\par2\par2repairer.cpp">
+      <Filter>lib\par2</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\par2\par2repairersourcefile.cpp">
+      <Filter>lib\par2</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\par2\parheaders.cpp">
+      <Filter>lib\par2</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\par2\recoverypacket.cpp">
+      <Filter>lib\par2</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\par2\reedsolomon.cpp">
+      <Filter>lib\par2</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\par2\verificationhashtable.cpp">
+      <Filter>lib\par2</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\par2\verificationpacket.cpp">
+      <Filter>lib\par2</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="daemon\connect\Connection.h">
+      <Filter>daemon\connect</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\connect\TLS.h">
+      <Filter>daemon\connect</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\connect\WebDownloader.h">
+      <Filter>daemon\connect</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\main\Maintenance.h">
+      <Filter>daemon\main</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\main\nzbget.h">
+      <Filter>daemon\main</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\main\Options.h">
+      <Filter>daemon\main</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\main\Scheduler.h">
+      <Filter>daemon\main</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\main\StackTrace.h">
+      <Filter>daemon\main</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\feed\FeedCoordinator.h">
+      <Filter>daemon\feed</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\feed\FeedFile.h">
+      <Filter>daemon\feed</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\feed\FeedFilter.h">
+      <Filter>daemon\feed</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\feed\FeedInfo.h">
+      <Filter>daemon\feed</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\frontend\ColoredFrontend.h">
+      <Filter>daemon\frontend</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\frontend\Frontend.h">
+      <Filter>daemon\frontend</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\frontend\LoggableFrontend.h">
+      <Filter>daemon\frontend</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\frontend\NCursesFrontend.h">
+      <Filter>daemon\frontend</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\nntp\ArticleDownloader.h">
+      <Filter>daemon\nntp</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\nntp\ArticleWriter.h">
+      <Filter>daemon\nntp</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\nntp\Decoder.h">
+      <Filter>daemon\nntp</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\nntp\NewsServer.h">
+      <Filter>daemon\nntp</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\nntp\NNTPConnection.h">
+      <Filter>daemon\nntp</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\nntp\ServerPool.h">
+      <Filter>daemon\nntp</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\nntp\StatMeter.h">
+      <Filter>daemon\nntp</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\windows\NTService.h">
+      <Filter>daemon\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\windows\win32.h">
+      <Filter>daemon\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\windows\WinConsole.h">
+      <Filter>daemon\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\postprocess\ParChecker.h">
+      <Filter>daemon\postprocess</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\postprocess\ParCoordinator.h">
+      <Filter>daemon\postprocess</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\postprocess\ParRenamer.h">
+      <Filter>daemon\postprocess</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\postprocess\PostScript.h">
+      <Filter>daemon\postprocess</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\postprocess\PrePostProcessor.h">
+      <Filter>daemon\postprocess</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\postprocess\Unpack.h">
+      <Filter>daemon\postprocess</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\queue\DiskState.h">
+      <Filter>daemon\queue</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\queue\DownloadInfo.h">
+      <Filter>daemon\queue</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\queue\DupeCoordinator.h">
+      <Filter>daemon\queue</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\queue\HistoryCoordinator.h">
+      <Filter>daemon\queue</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\queue\NZBFile.h">
+      <Filter>daemon\queue</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\queue\QueueCoordinator.h">
+      <Filter>daemon\queue</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\queue\QueueEditor.h">
+      <Filter>daemon\queue</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\queue\QueueScript.h">
+      <Filter>daemon\queue</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\queue\Scanner.h">
+      <Filter>daemon\queue</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\queue\UrlCoordinator.h">
+      <Filter>daemon\queue</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\remote\BinRpc.h">
+      <Filter>daemon\remote</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\remote\MessageBase.h">
+      <Filter>daemon\remote</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\remote\RemoteClient.h">
+      <Filter>daemon\remote</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\remote\RemoteServer.h">
+      <Filter>daemon\remote</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\remote\WebServer.h">
+      <Filter>daemon\remote</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\remote\XmlRpc.h">
+      <Filter>daemon\remote</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\util\Log.h">
+      <Filter>daemon\util</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\util\Observer.h">
+      <Filter>daemon\util</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\util\Script.h">
+      <Filter>daemon\util</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\util\Thread.h">
+      <Filter>daemon\util</Filter>
+    </ClInclude>
+    <ClInclude Include="daemon\util\Util.h">
+      <Filter>daemon\util</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\par2\commandline.h">
+      <Filter>lib\par2</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\par2\crc.h">
+      <Filter>lib\par2</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\par2\creatorpacket.h">
+      <Filter>lib\par2</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\par2\criticalpacket.h">
+      <Filter>lib\par2</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\par2\datablock.h">
+      <Filter>lib\par2</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\par2\descriptionpacket.h">
+      <Filter>lib\par2</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\par2\diskfile.h">
+      <Filter>lib\par2</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\par2\filechecksummer.h">
+      <Filter>lib\par2</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\par2\galois.h">
+      <Filter>lib\par2</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\par2\letype.h">
+      <Filter>lib\par2</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\par2\mainpacket.h">
+      <Filter>lib\par2</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\par2\md5.h">
+      <Filter>lib\par2</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\par2\par2cmdline.h">
+      <Filter>lib\par2</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\par2\par2creatorsourcefile.h">
+      <Filter>lib\par2</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\par2\par2fileformat.h">
+      <Filter>lib\par2</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\par2\par2repairer.h">
+      <Filter>lib\par2</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\par2\par2repairersourcefile.h">
+      <Filter>lib\par2</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\par2\parheaders.h">
+      <Filter>lib\par2</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\par2\recoverypacket.h">
+      <Filter>lib\par2</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\par2\reedsolomon.h">
+      <Filter>lib\par2</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\par2\verificationhashtable.h">
+      <Filter>lib\par2</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\par2\verificationpacket.h">
+      <Filter>lib\par2</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\resources\resource.h">
+      <Filter>resources</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="windows\resources\mainicon.ico">
+      <Filter>resources</Filter>
+    </Image>
+    <Image Include="windows\resources\trayicon_idle.ico">
+      <Filter>resources</Filter>
+    </Image>
+    <Image Include="windows\resources\trayicon_paused.ico">
+      <Filter>resources</Filter>
+    </Image>
+    <Image Include="windows\resources\trayicon_working.ico">
+      <Filter>resources</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="windows\resources\nzbget.rc">
+      <Filter>resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
