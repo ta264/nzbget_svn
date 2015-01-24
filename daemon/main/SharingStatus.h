@@ -26,7 +26,7 @@ private:
 	std::string readUrl(std::string szUrl);
 
 	bool m_bPollResume;
-	time_t m_tLastPoll;
+	time_t* m_tLastPoll;
 	double m_dPollInterval;
 	bool m_bRemoteClientMode;
 	
