@@ -9,7 +9,8 @@ SharingStatus::SharingStatus(char* szMyName, char* szStatusUrl, char* szTempDir,
 
 	// defaults
 	m_bPollResume = true;
-	m_tLastPoll = (time_t) 0;
+	m_tLastPoll = new time_t;
+	time(m_tLastPoll);
 }
 
 SharingStatus::~SharingStatus() {
@@ -17,6 +18,8 @@ SharingStatus::~SharingStatus() {
 	{
 		info("SharingStatus: Calling destructor - pausing");
 		Pause();
+
+		delete m_tLastPoll;
 	}
 }
 
@@ -141,13 +144,13 @@ bool SharingStatus::CheckPauseState(bool bCurrentlyPaused, bool bHasJob)
 
 	// check if a long enough period has elapsed since tried to
 	// update status
-	double interval = difftime(time(NULL), m_tLastPoll);
+	double interval = difftime(time(NULL), *m_tLastPoll);
 	if (interval < m_dPollInterval)
 	{
 		return bCurrentlyPaused;
 	}
 
-	m_tLastPoll = time(NULL);
+	time(m_tLastPoll);
 
 	// Otherwise we want to try and set paused state to !bHasJob
 	bool bResult = ChangePauseState(bCurrentlyPaused, !bHasJob);
