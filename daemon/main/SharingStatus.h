@@ -1,14 +1,14 @@
 #ifndef SHARINGSTATUS_H
 #define SHARINGSTATUS_H
 
+#ifdef WIN32
+#include "win32.h"
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
 #include <time.h>
-
-#ifdef WIN32
-#include "win32.h"
-#endif
 
 #include "nzbget.h"
 #include "DownloadInfo.h"
@@ -26,7 +26,7 @@ private:
 	std::string readUrl(std::string szUrl);
 
 	bool m_bPollResume;
-	time_t* m_tLastPoll;
+	time_t m_tLastPoll;
 	double m_dPollInterval;
 	bool m_bRemoteClientMode;
 	
