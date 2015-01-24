@@ -2,7 +2,7 @@
  *  This file is part of nzbget
  *
  *  Copyright (C) 2004 Sven Henkel <sidddy@users.sourceforge.net>
- *  Copyright (C) 2007-2014 Andrey Prygunkov <hugbug@users.sourceforge.net>
+ *  Copyright (C) 2007-2015 Andrey Prygunkov <hugbug@users.sourceforge.net>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -525,7 +525,9 @@ void ProcessClientRequest()
 			break;
 
 		case Options::opClientRequestDownload:
-			Client->RequestServerDownload(g_pOptions->GetArgFilename(), g_pOptions->GetAddCategory(), g_pOptions->GetAddTop(), g_pOptions->GetAddPaused(), g_pOptions->GetAddPriority());
+			Client->RequestServerDownload(g_pOptions->GetAddNZBFilename(), g_pOptions->GetArgFilename(),
+				g_pOptions->GetAddCategory(), g_pOptions->GetAddTop(), g_pOptions->GetAddPaused(), g_pOptions->GetAddPriority(),
+				g_pOptions->GetAddDupeKey(), g_pOptions->GetAddDupeMode(), g_pOptions->GetAddDupeScore());
 			break;
 
 		case Options::opClientRequestVersion:
@@ -564,12 +566,9 @@ void ProcessClientRequest()
 			Client->RequestServerPauseUnpause(false, eRemotePauseUnpauseActionScan);
 			break;
 
-		case Options::opClientRequestHistory:	 
-			Client->RequestHistory();	 
-			break;
-
-		case Options::opClientRequestDownloadUrl:
-			Client->RequestServerDownloadUrl(g_pOptions->GetLastArg(), g_pOptions->GetAddNZBFilename(), g_pOptions->GetAddCategory(), g_pOptions->GetAddTop(), g_pOptions->GetAddPaused(), g_pOptions->GetAddPriority());
+		case Options::opClientRequestHistory:
+		case Options::opClientRequestHistoryAll:
+			Client->RequestHistory(g_pOptions->GetClientOperation() == Options::opClientRequestHistoryAll);
 			break;
 
 		case Options::opClientNoOperation:

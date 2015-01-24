@@ -1,7 +1,7 @@
 /*
  * This file is part of nzbget
  *
- * Copyright (C) 2012-2014 Andrey Prygunkov <hugbug@users.sourceforge.net>
+ * Copyright (C) 2012-2015 Andrey Prygunkov <hugbug@users.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -312,6 +312,11 @@ var History = (new function($)
 				break;
 
 			case 'REDOWNLOAD':
+				if (hasDup)
+				{
+					Notification.show('#Notif_History_CantRedownload');
+					return;
+				}
 				notification = '#Notif_History_Returned';
 				historyAction('HistoryRedownload');
 				break;
@@ -324,7 +329,18 @@ var History = (new function($)
 					return;
 				}
 				notification = '#Notif_History_Marked';
-				historyAction(action === 'MARKGOOD' ? 'HistoryMarkGood' : 'HistoryMarkBad');
+
+				ConfirmDialog.showModal(action === 'MARKGOOD' ?
+					'HistoryEditGoodConfirmDialog' : 'HistoryEditBadConfirmDialog',
+					function () // action
+					{
+						historyAction(action === 'MARKGOOD' ? 'HistoryMarkGood' : 'HistoryMarkBad');
+					},
+					function (_dialog) // init
+					{
+						HistoryUI.confirmMulti(checkedRows.length > 1);
+					}
+				);
 				break;
 		}
 	}
@@ -487,14 +503,7 @@ var HistoryUI = (new function($)
 		function init(_dialog)
 		{
 			dialog = _dialog;
-
-			if (!multi)
-			{
-				var html = $('#ConfirmDialog_Text').html();
-				html = html.replace(/records/g, 'record');
-				$('#ConfirmDialog_Text').html(html);
-			}
-
+			HistoryUI.confirmMulti(multi);
 			$('#HistoryDeleteConfirmDialog_Hide', dialog).prop('checked', true);
 			Util.show($('#HistoryDeleteConfirmDialog_Options', dialog), hasNzb && dupeCheck);
 			Util.show($('#HistoryDeleteConfirmDialog_Simple', dialog), !(hasNzb && dupeCheck));
@@ -514,5 +523,14 @@ var HistoryUI = (new function($)
 
 		ConfirmDialog.showModal('HistoryDeleteConfirmDialog', action, init);
 	}
-
+	
+	this.confirmMulti = function(multi)
+	{
+		if (multi === undefined || !multi)
+		{
+			var html = $('#ConfirmDialog_Text').html();
+			html = html.replace(/records/g, 'record');
+			$('#ConfirmDialog_Text').html(html);
+		}
+	}
 }(jQuery));
