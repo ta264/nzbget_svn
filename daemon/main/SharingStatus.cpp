@@ -10,7 +10,7 @@ SharingStatus::SharingStatus(char* szMyName, char* szStatusUrl, char* szTempDir,
 	// defaults
 	m_bPollResume = true;
 	m_tLastPoll = new time_t;
-	time(m_tLastPoll);
+	*m_tLastPoll = 0;
 }
 
 SharingStatus::~SharingStatus() {
