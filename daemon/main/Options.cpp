@@ -187,6 +187,7 @@ static const char* OPTION_TIMECORRECTION		= "TimeCorrection";
 static const char* OPTION_PROPAGATIONDELAY		= "PropagationDelay";
 static const char* OPTION_ARTICLECACHE			= "ArticleCache";
 static const char* OPTION_EVENTINTERVAL			= "EventInterval";
+static const char* OPTION_SHARINGSTATUSENABLED		= "SharingStatusEnabled";
 static const char* OPTION_SHARINGSTATUSURL		= "SharingStatusUrl";
 static const char* OPTION_SHARINGSTATUSNAME		= "SharingStatusName";
 static const char* OPTION_SHARINGSTATUSPOLLINTERVAL	= "SharingStatusPollInterval";
@@ -575,6 +576,7 @@ Options::Options(int argc, char* argv[])
 	m_iPropagationDelay		= 0;
 	m_iArticleCache			= 0;
 	m_iEventInterval		= 0;
+	m_bSharingStatusEnabled         = true;
 	m_szSharingStatusUrl            = NULL;
 	m_szSharingStatusName           = NULL;
 	m_iSharingStatusPollInterval    = 0;
@@ -643,7 +645,8 @@ Options::Options(int argc, char* argv[])
 	InitScripts();
 	InitConfigTemplates();
 	
-	m_SharingStatus = new SharingStatus(m_szSharingStatusName,
+	m_SharingStatus = new SharingStatus(m_bSharingStatusEnabled,
+					    m_szSharingStatusName,
 					    m_szSharingStatusUrl,
 					    m_szTempDir,
 					    m_iSharingStatusPollInterval,
@@ -862,6 +865,7 @@ void Options::InitDefault()
 	SetOption(OPTION_PROPAGATIONDELAY, "0");
 	SetOption(OPTION_ARTICLECACHE, "0");
 	SetOption(OPTION_EVENTINTERVAL, "0");
+	SetOption(OPTION_SHARINGSTATUSENABLED, "yes");
 	SetOption(OPTION_SHARINGSTATUSURL, "");
 	SetOption(OPTION_SHARINGSTATUSNAME, "");
 	SetOption(OPTION_SHARINGSTATUSPOLLINTERVAL, "");
@@ -1094,6 +1098,7 @@ void Options::InitOptions()
 	m_bUnpackCleanupDisk	= (bool)ParseEnumValue(OPTION_UNPACKCLEANUPDISK, BoolCount, BoolNames, BoolValues);
 	m_bUnpackPauseQueue		= (bool)ParseEnumValue(OPTION_UNPACKPAUSEQUEUE, BoolCount, BoolNames, BoolValues);
 	m_bUrlForce				= (bool)ParseEnumValue(OPTION_URLFORCE, BoolCount, BoolNames, BoolValues);
+	m_bSharingStatusEnabled         = (bool)ParseEnumValue(OPTION_SHARINGSTATUSENABLED, BoolCount, BoolNames, BoolValues);
 
 	const char* OutputModeNames[] = { "loggable", "logable", "log", "colored", "color", "ncurses", "curses" };
 	const int OutputModeValues[] = { omLoggable, omLoggable, omLoggable, omColored, omColored, omNCurses, omNCurses };

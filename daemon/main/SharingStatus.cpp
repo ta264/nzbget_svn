@@ -1,6 +1,7 @@
 #include "SharingStatus.h"
 
-SharingStatus::SharingStatus(char* szMyName, char* szStatusUrl, char* szTempDir, int iPollInterval, bool bRemoteClientMode) {
+SharingStatus::SharingStatus(bool bEnabled, char* szMyName, char* szStatusUrl, char* szTempDir, int iPollInterval, bool bRemoteClientMode) {
+	m_bEnabled = bEnabled;
 	m_szMyName.assign(szMyName);
 	m_szStatusUrl.assign(szStatusUrl);
 	m_szTempDir.assign(szTempDir);
@@ -69,6 +70,10 @@ std::string SharingStatus::readUrl(std::string url)
 
 bool SharingStatus::Pause()
 {
+	// Return if not enabled
+	if (!m_bEnabled)
+		return true;
+
 	// Tell webserver we've paused.  No response given.
 	std::string url = m_szStatusUrl + "?person=" + m_szMyName + "&action=stop";
 	readUrl(url);
@@ -77,6 +82,10 @@ bool SharingStatus::Pause()
 
 bool SharingStatus::TryResume()
 {
+	// Always allow resume if sharing not enabled
+	if (!m_bEnabled)
+		return true;
+
 	// Query webserver to see if resume allowed
 	std::string url = m_szStatusUrl + "?person=" + m_szMyName + "&action=nzbadd";
 	std::string reply = readUrl(url);
