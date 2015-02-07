@@ -25,6 +25,7 @@ private:
 	std::string m_szTempDir;
 	std::string readUrl(std::string szUrl);
 
+	bool m_bEnabled;
 	bool m_bPollResume;
 	time_t m_tLastPoll;
 	double m_dPollInterval;
@@ -33,7 +34,7 @@ private:
 	bool Pause();
 	bool TryResume();
 public:
-	SharingStatus(char* szMyName, char* szStatusUrl, char* szTempDir, int iPollInterval, bool bRemoteClientMode);
+	SharingStatus(bool bEnabled, char* szMyName, char* szStatusUrl, char* szTempDir, int iPollInterval, bool bRemoteClientMode);
 	~SharingStatus();
 	bool ChangePauseState(bool bCurrentPauseState, bool bWantedPauseState);
 	bool CheckPauseState(bool bCurrentlyPaused, bool bHasJob);

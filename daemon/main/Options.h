@@ -341,6 +341,7 @@ private:
 	int					m_iPropagationDelay;
 	int					m_iArticleCache;
 	int					m_iEventInterval;
+	bool                            m_bSharingStatusEnabled;
 	char*                           m_szSharingStatusUrl;
 	char*                           m_szSharingStatusName;
 	int                             m_iSharingStatusPollInterval;
