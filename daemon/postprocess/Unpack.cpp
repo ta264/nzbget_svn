@@ -562,7 +562,7 @@ bool UnpackController::JoinFile(const char* szFragBaseName)
 	FILE* pOutFile = fopen(szDestFilename, FOPEN_WBP);
 	if (!pOutFile)
 	{
-		error("Could not create file %s: %s", szDestFilename, Util::GetLastErrorMessage(szErrBuf, sizeof(szErrBuf)));
+		PrintMessage(Message::mkError, "Could not create file %s: %s", szDestFilename, Util::GetLastErrorMessage(szErrBuf, sizeof(szErrBuf)));
 		return false;
 	}
 	if (g_pOptions->GetWriteBuffer() > 0)
@@ -614,7 +614,7 @@ bool UnpackController::JoinFile(const char* szFragBaseName)
 		}
 		else
 		{
-			error("Could not open file %s", szFragFilename);
+			PrintMessage(Message::mkError, "Could not open file %s", szFragFilename);
 			bOK = false;
 			break;
 		}
@@ -704,7 +704,7 @@ void UnpackController::CreateUnpackDir()
 	char szErrBuf[1024];
 	if (!Util::ForceDirectories(m_szUnpackDir, szErrBuf, sizeof(szErrBuf)))
 	{
-		error("Could not create directory %s: %s", m_szUnpackDir, szErrBuf);
+		PrintMessage(Message::mkError, "Could not create directory %s: %s", m_szUnpackDir, szErrBuf);
 	}
 }
 
@@ -803,7 +803,8 @@ bool UnpackController::Cleanup()
 		while (const char* filename = dir.Next())
 		{
 			if (strcmp(filename, ".") && strcmp(filename, "..") &&
-				strcmp(filename, ".AppleDouble") && strcmp(filename, ".DS_Store"))
+				strcmp(filename, ".AppleDouble") && strcmp(filename, ".DS_Store") &&
+				strncmp(filename, ".nfs", 4))
 			{
 				char szSrcFile[1024];
 				snprintf(szSrcFile, 1024, "%s%c%s", m_szUnpackDir, PATH_SEPARATOR, filename);
@@ -961,8 +962,7 @@ void UnpackController::AddMessage(Message::EKind eKind, const char* szText)
 		szMsgText[1024-1] = '\0';
 	}
 
-	ScriptController::AddMessage(eKind, szMsgText);
-	m_pPostInfo->AppendMessage(eKind, szMsgText);
+	m_pPostInfo->GetNZBInfo()->AddMessage(eKind, szMsgText);
 
 	if (m_eUnpacker == upUnrar && !strncmp(szMsgText, "Unrar: UNRAR ", 6) &&
 		strstr(szMsgText, " Copyright ") && strstr(szMsgText, " Alexander Roshal"))
@@ -1012,8 +1012,7 @@ void UnpackController::AddMessage(Message::EKind eKind, const char* szText)
 		char szMsgText[1024];
 		snprintf(szMsgText, 1024, "Cancelling %s due to errors", m_szInfoName);
 		szMsgText[1024-1] = '\0';
-		ScriptController::AddMessage(Message::mkWarning, szMsgText);
-		m_pPostInfo->AppendMessage(Message::mkWarning, szMsgText);
+		m_pPostInfo->GetNZBInfo()->AddMessage(Message::mkWarning, szMsgText);
 		m_bAutoTerminated = true;
 		Stop();
 	}
@@ -1073,7 +1072,7 @@ void MoveController::Run()
 
 	DownloadQueue::Unlock();
 
-	info("Moving completed files for %s", szNZBName);
+	PrintMessage(Message::mkInfo, "Moving completed files for %s", szNZBName);
 
 	bool bOK = MoveFiles();
 
@@ -1081,7 +1080,7 @@ void MoveController::Run()
 
 	if (bOK)
 	{
-		info("%s successful", szInfoName);
+		PrintMessage(Message::mkInfo, "%s successful", szInfoName);
 		// save new dest dir
 		DownloadQueue::Lock();
 		m_pPostInfo->GetNZBInfo()->SetDestDir(m_szDestDir);
@@ -1090,7 +1089,7 @@ void MoveController::Run()
 	}
 	else
 	{
-		error("%s failed", szInfoName);
+		PrintMessage(Message::mkError, "%s failed", szInfoName);
 		m_pPostInfo->GetNZBInfo()->SetMoveStatus(NZBInfo::msFailure);
 	}
 
@@ -1103,7 +1102,7 @@ bool MoveController::MoveFiles()
 	char szErrBuf[1024];
 	if (!Util::ForceDirectories(m_szDestDir, szErrBuf, sizeof(szErrBuf)))
 	{
-		error("Could not create directory %s: %s", m_szDestDir, szErrBuf);
+		PrintMessage(Message::mkError, "Could not create directory %s: %s", m_szDestDir, szErrBuf);
 		return false;
 	}
 
@@ -1112,7 +1111,8 @@ bool MoveController::MoveFiles()
 	while (const char* filename = dir.Next())
 	{
 		if (strcmp(filename, ".") && strcmp(filename, "..") &&
-			strcmp(filename, ".AppleDouble") && strcmp(filename, ".DS_Store"))
+			strcmp(filename, ".AppleDouble") && strcmp(filename, ".DS_Store") &&
+			strncmp(filename, ".nfs", 4))
 		{
 			char szSrcFile[1024];
 			snprintf(szSrcFile, 1024, "%s%c%s", m_szInterDir, PATH_SEPARATOR, filename);
@@ -1138,6 +1138,10 @@ bool MoveController::MoveFiles()
 	return bOK;
 }
 
+void MoveController::AddMessage(Message::EKind eKind, const char* szText)
+{
+	m_pPostInfo->GetNZBInfo()->AddMessage(eKind, szText);
+}
 
 void CleanupController::StartJob(PostInfo* pPostInfo)
 {
@@ -1181,7 +1185,7 @@ void CleanupController::Run()
 
 	DownloadQueue::Unlock();
 
-	info("Cleaning up %s", szNZBName);
+	PrintMessage(Message::mkInfo, "Cleaning up %s", szNZBName);
 
 	bool bDeleted = false;
 	bool bOK = Cleanup(m_szDestDir, &bDeleted);
@@ -1197,17 +1201,17 @@ void CleanupController::Run()
 
 	if (bOK && bDeleted)
 	{
-		info("%s successful", szInfoName);
+		PrintMessage(Message::mkInfo, "%s successful", szInfoName);
 		m_pPostInfo->GetNZBInfo()->SetCleanupStatus(NZBInfo::csSuccess);
 	}
 	else if (bOK)
 	{
-		info("Nothing to cleanup for %s", szNZBName);
+		PrintMessage(Message::mkInfo, "Nothing to cleanup for %s", szNZBName);
 		m_pPostInfo->GetNZBInfo()->SetCleanupStatus(NZBInfo::csSuccess);
 	}
 	else
 	{
-		error("%s failed", szInfoName);
+		PrintMessage(Message::mkError, "%s failed", szInfoName);
 		m_pPostInfo->GetNZBInfo()->SetCleanupStatus(NZBInfo::csFailure);
 	}
 
@@ -1223,15 +1227,22 @@ bool CleanupController::Cleanup(const char* szDestDir, bool *bDeleted)
 	DirBrowser dir(szDestDir);
 	while (const char* filename = dir.Next())
 	{
+		char szFullFilename[1024];
+		snprintf(szFullFilename, 1024, "%s%c%s", szDestDir, PATH_SEPARATOR, filename);
+		szFullFilename[1024-1] = '\0';
+
+		bool bIsDir = Util::DirectoryExists(szFullFilename);
+
+		if (strcmp(filename, ".") && strcmp(filename, "..") && bIsDir)
+		{
+			bOK &= Cleanup(szFullFilename, bDeleted);
+		}
+
 		// check file extension
-		bool bDeleteIt = Util::MatchFileExt(filename, g_pOptions->GetExtCleanupDisk(), ",;");
+		bool bDeleteIt = Util::MatchFileExt(filename, g_pOptions->GetExtCleanupDisk(), ",;") && !bIsDir;
 
 		if (bDeleteIt)
 		{
-			char szFullFilename[1024];
-			snprintf(szFullFilename, 1024, "%s%c%s", szDestDir, PATH_SEPARATOR, filename);
-			szFullFilename[1024-1] = '\0';
-
 			PrintMessage(Message::mkInfo, "Deleting file %s", filename);
 			if (remove(szFullFilename) != 0)
 			{
@@ -1245,4 +1256,9 @@ bool CleanupController::Cleanup(const char* szDestDir, bool *bDeleted)
 	}
 
 	return bOK;
+}
+
+void CleanupController::AddMessage(Message::EKind eKind, const char* szText)
+{
+	m_pPostInfo->GetNZBInfo()->AddMessage(eKind, szText);
 }

@@ -266,7 +266,8 @@ private:
 	EMessageTarget		m_eDebugTarget;
 	EMessageTarget		m_eDetailTarget;
 	bool				m_bDecode;
-	bool				m_bCreateBrokenLog;
+	bool				m_bBrokenLog;
+	bool				m_bNzbLog;
 	int					m_iArticleTimeout;
 	int					m_iUrlTimeout;
 	int					m_iTerminateTimeout;
@@ -377,6 +378,8 @@ private:
 	int					m_iLogLines;
 	int					m_iWriteLogKind;
 	bool				m_bTestBacktrace;
+	bool				m_bWebGet;
+	char*				m_szWebGetFilename;
 
 	// Current state
 	bool				m_bPauseDownload;
@@ -449,7 +452,8 @@ public:
 	const char*			GetWebDir() { return m_szWebDir; }
 	const char*			GetConfigTemplate() { return m_szConfigTemplate; }
 	const char*			GetScriptDir() { return m_szScriptDir; }
-	bool				GetCreateBrokenLog() const { return m_bCreateBrokenLog; }
+	bool				GetBrokenLog() const { return m_bBrokenLog; }
+	bool				GetNzbLog() const { return m_bNzbLog; }
 	EMessageTarget		GetInfoTarget() const { return m_eInfoTarget; }
 	EMessageTarget		GetWarningTarget() const { return m_eWarningTarget; }
 	EMessageTarget		GetErrorTarget() const { return m_eErrorTarget; }
@@ -564,6 +568,8 @@ public:
 	int					GetLogLines() { return m_iLogLines; }
 	int					GetWriteLogKind() { return m_iWriteLogKind; }
 	bool				GetTestBacktrace() { return m_bTestBacktrace; }
+	bool				GetWebGet() { return m_bWebGet; }
+	const char*			GetWebGetFilename() { return m_szWebGetFilename; }
 
 	// Current state
 	void				SetPauseDownload(bool bPauseDownload);

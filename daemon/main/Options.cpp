@@ -83,7 +83,7 @@ static struct option long_options[] =
 	    {"pause", no_argument, 0, 'P'},
 	    {"unpause", no_argument, 0, 'U'},
 	    {"rate", required_argument, 0, 'R'},
-	    {"debug", no_argument, 0, 'B'},
+	    {"system", no_argument, 0, 'B'},
 	    {"log", required_argument, 0, 'G'},
 	    {"top", no_argument, 0, 'T'},
 	    {"edit", required_argument, 0, 'E'},
@@ -139,7 +139,8 @@ static const char* OPTION_ARTICLETIMEOUT		= "ArticleTimeout";
 static const char* OPTION_URLTIMEOUT			= "UrlTimeout";
 static const char* OPTION_SAVEQUEUE				= "SaveQueue";
 static const char* OPTION_RELOADQUEUE			= "ReloadQueue";
-static const char* OPTION_CREATEBROKENLOG		= "CreateBrokenLog";
+static const char* OPTION_BROKENLOG				= "BrokenLog";
+static const char* OPTION_NZBLOG				= "NzbLog";
 static const char* OPTION_DECODE				= "Decode";
 static const char* OPTION_RETRIES				= "Retries";
 static const char* OPTION_RETRYINTERVAL			= "RetryInterval";
@@ -305,8 +306,7 @@ bool Options::OptEntry::Restricted()
 		!strcasecmp(m_szName, OPTION_UMASK) ||
 		strchr(m_szName, ':') ||			// All extension script options
 		strstr(szLoName, "username") ||		// ServerX.Username, ControlUsername, etc.
-		strstr(szLoName, "password") ||		// ServerX.Password, ControlPassword, etc.
-		strstr(szLoName, ".url");			// FeedX.URL
+		strstr(szLoName, "password");		// ServerX.Password, ControlPassword, etc.
 
 	return bRestricted;
 }
@@ -513,7 +513,8 @@ Options::Options(int argc, char* argv[])
 	m_bPausePostProcess		= false;
 	m_bPauseScan			= false;
 	m_bTempPauseDownload	= false;
-	m_bCreateBrokenLog		= false;
+	m_bBrokenLog			= false;
+	m_bNzbLog				= false;
 	m_iDownloadRate			= 0;
 	m_iEditQueueAction		= 0;
 	m_pEditQueueIDList		= NULL;
@@ -593,6 +594,8 @@ Options::Options(int argc, char* argv[])
 	m_bParCleanupQueue		= false;
 	m_iDiskSpace			= 0;
 	m_bTestBacktrace		= false;
+	m_bWebGet				= false;
+	m_szWebGetFilename		= NULL;
 	m_bTLS					= false;
 	m_bDumpCore				= false;
 	m_bParPauseQueue		= false;
@@ -750,6 +753,7 @@ Options::~Options()
 	free(m_szUnpackPassFile);
 	free(m_szExtCleanupDisk);
 	free(m_szParIgnoreExt);
+	free(m_szWebGetFilename);
 	free(m_szSharingStatusUrl);
 	free(m_szSharingStatusName);
 
@@ -854,7 +858,8 @@ void Options::InitDefault()
 	SetOption(OPTION_URLTIMEOUT, "60");
 	SetOption(OPTION_SAVEQUEUE, "yes");
 	SetOption(OPTION_RELOADQUEUE, "yes");
-	SetOption(OPTION_CREATEBROKENLOG, "yes");
+	SetOption(OPTION_BROKENLOG, "yes");
+	SetOption(OPTION_NZBLOG, "yes");
 	SetOption(OPTION_DECODE, "yes");
 	SetOption(OPTION_RETRIES, "3");
 	SetOption(OPTION_RETRYINTERVAL, "10");
@@ -1143,7 +1148,8 @@ void Options::InitOptions()
 
 	CheckDir(&m_szNzbDir, OPTION_NZBDIR, szMainDir, m_iNzbDirInterval == 0, true);
 
-	m_bCreateBrokenLog		= (bool)ParseEnumValue(OPTION_CREATEBROKENLOG, BoolCount, BoolNames, BoolValues);
+	m_bBrokenLog			= (bool)ParseEnumValue(OPTION_BROKENLOG, BoolCount, BoolNames, BoolValues);
+	m_bNzbLog				= (bool)ParseEnumValue(OPTION_NZBLOG, BoolCount, BoolNames, BoolValues);
 	m_bAppendCategoryDir	= (bool)ParseEnumValue(OPTION_APPENDCATEGORYDIR, BoolCount, BoolNames, BoolValues);
 	m_bContinuePartial		= (bool)ParseEnumValue(OPTION_CONTINUEPARTIAL, BoolCount, BoolNames, BoolValues);
 	m_bSaveQueue			= (bool)ParseEnumValue(OPTION_SAVEQUEUE, BoolCount, BoolNames, BoolValues);
@@ -1535,6 +1541,17 @@ void Options::InitCommandLine(int argc, char* argv[])
 				else if (!strcasecmp(optarg, "trace"))
 				{
 					m_bTestBacktrace = true;
+				}
+				else if (!strcasecmp(optarg, "webget"))
+				{
+					m_bWebGet = true;
+					optind++;
+					if (optind > argc)
+					{
+						abort("FATAL ERROR: Could not parse value of option 'E'\n");
+					}
+					optarg = argv[optind-1];
+					m_szWebGetFilename = strdup(optarg);
 				}
 				else
 				{
@@ -2882,6 +2899,11 @@ void Options::ConvertOldOption(char *szOption, int iOptionBufLen, char *szValue,
 	if (!strcasecmp(szOption, "ConnectionTimeout"))
 	{
 		strncpy(szOption, "ArticleTimeout", iOptionBufLen);
+	}
+
+	if (!strcasecmp(szOption, "CreateBrokenLog"))
+	{
+		strncpy(szOption, "BrokenLog", iOptionBufLen);
 	}
 
 	szOption[iOptionBufLen-1] = '\0';
