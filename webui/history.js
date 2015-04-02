@@ -78,8 +78,8 @@ var History = (new function($)
 			});
 
 		$HistoryTable.on('click', 'a', editClick);
-		$HistoryTable.on('click', 'tbody div.check',
-			function(event) { $HistoryTable.fasttable('itemCheckClick', this.parentNode.parentNode, event); });
+		$HistoryTable.on('click', UISettings.rowSelect ? 'tbody tr' : 'tbody div.check',
+			function(event) { $HistoryTable.fasttable('itemCheckClick', UISettings.rowSelect ? this : this.parentNode.parentNode, event); });
 		$HistoryTable.on('click', 'thead div.check',
 			function() { $HistoryTable.fasttable('titleCheckClick') });
 		$HistoryTable.on('mousedown', Util.disableShiftMouseDown);
@@ -321,6 +321,7 @@ var History = (new function($)
 				historyAction('HistoryRedownload');
 				break;
 
+			case 'MARKSUCCESS':
 			case 'MARKGOOD':
 			case 'MARKBAD':
 				if (hasUrl)
@@ -330,11 +331,12 @@ var History = (new function($)
 				}
 				notification = '#Notif_History_Marked';
 
-				ConfirmDialog.showModal(action === 'MARKGOOD' ?
-					'HistoryEditGoodConfirmDialog' : 'HistoryEditBadConfirmDialog',
+				ConfirmDialog.showModal(action === 'MARKSUCCESS' ? 'HistoryEditSuccessConfirmDialog' : 
+					action === 'MARKGOOD' ? 'HistoryEditGoodConfirmDialog' : 'HistoryEditBadConfirmDialog',
 					function () // action
 					{
-						historyAction(action === 'MARKGOOD' ? 'HistoryMarkGood' : 'HistoryMarkBad');
+						historyAction(action === 'MARKSUCCESS' ? 'HistoryMarkSuccess' :
+							action === 'MARKGOOD' ? 'HistoryMarkGood' :'HistoryMarkBad');
 					},
 					function (_dialog) // init
 					{
@@ -368,6 +370,7 @@ var History = (new function($)
 	function editClick(e)
 	{
 		e.preventDefault();
+		e.stopPropagation();
 
 		var histid = $(this).attr('histid');
 		$(this).blur();

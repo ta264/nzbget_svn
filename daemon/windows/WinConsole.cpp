@@ -424,6 +424,10 @@ void WinConsole::ShowMenu()
 		case ID_TROUBLESHOOTING_OPENCONFIG:
 			OpenConfigFileInTextEdit();
 			break;
+
+		case ID_TROUBLESHOOTING_FACTORYRESET:
+			ShowFactoryResetDialog();
+			break;
 	}
 
 	if (iItemID >= ID_SHOW_DESTDIR + 1000 && iItemID < ID_SHOW_DESTDIR + 2000)
@@ -916,13 +920,6 @@ void WinConsole::SetupConfigFile()
 {
 	// create new config-file from config template
 
-	char szAppDir[MAX_PATH + 30];
-	GetModuleFileName(NULL, szAppDir, MAX_PATH + 1);
-	szAppDir[MAX_PATH] = '\0';
-	Util::NormalizePathSeparators(szAppDir);
-	char* end = strrchr(szAppDir, PATH_SEPARATOR);
-	if (end) *end = '\0';
-
 	char szFilename[MAX_PATH + 30];
 
 	char szCommonAppDataPath[MAX_PATH];
@@ -937,7 +934,7 @@ void WinConsole::SetupConfigFile()
 	Util::CreateDirectory(szAppDataPath);
 
 	char szConfTemplateFilename[MAX_PATH + 30];
-	snprintf(szConfTemplateFilename, sizeof(szConfTemplateFilename), "%s\\nzbget.conf.template", szAppDir);
+	snprintf(szConfTemplateFilename, sizeof(szConfTemplateFilename), "%s\\nzbget.conf.template", g_pOptions->GetAppDir());
 	szConfTemplateFilename[sizeof(szConfTemplateFilename)-1] = '\0';
 
 	CopyFile(szConfTemplateFilename, szFilename, FALSE);
@@ -978,20 +975,13 @@ void WinConsole::SetupScripts()
 	char szAppDataPath[MAX_PATH];
 	SHGetFolderPath(NULL, CSIDL_COMMON_APPDATA, NULL, 0, szAppDataPath);
 
-	char szAppDir[MAX_PATH + 30];
-	GetModuleFileName(NULL, szAppDir, MAX_PATH + 1);
-	szAppDir[MAX_PATH] = '\0';
-	Util::NormalizePathSeparators(szAppDir);
-	char* end = strrchr(szAppDir, PATH_SEPARATOR);
-	if (end) *end = '\0';
-
 	char szDestDir[MAX_PATH + 1];
 	snprintf(szDestDir, sizeof(szDestDir), "%s\\NZBGet\\scripts", szAppDataPath);
 	szDestDir[sizeof(szDestDir)-1] = '\0';
 	Util::CreateDirectory(szDestDir);
 
 	char szSrcDir[MAX_PATH + 30];
-	snprintf(szSrcDir, sizeof(szSrcDir), "%s\\scripts", szAppDir);
+	snprintf(szSrcDir, sizeof(szSrcDir), "%s\\scripts", g_pOptions->GetAppDir());
 	szSrcDir[sizeof(szSrcDir)-1] = '\0';
 
 	DirBrowser dir(szSrcDir);
@@ -1010,4 +1000,139 @@ void WinConsole::SetupScripts()
 			CopyFile(szSrcFullFilename, szDstFullFilename, FALSE);
 		}
 	}
+}
+
+void WinConsole::ShowFactoryResetDialog()
+{
+	HWND hTrayWindow = FindWindow("NZBGet tray window", NULL);
+	m_bRunning = true;
+
+	int iResult = DialogBox(m_hInstance, MAKEINTRESOURCE(IDD_FACTORYRESETDIALOG), m_hTrayWindow, FactoryResetDialogProcStat);
+
+	switch (iResult)
+	{
+		case IDC_FACTORYRESET_RESET:
+			ResetFactoryDefaults();
+			break;
+	}
+}
+
+BOOL CALLBACK WinConsole::FactoryResetDialogProcStat(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	return g_pWinConsole->FactoryResetDialogProc(hwndDlg, uMsg, wParam, lParam);
+}
+
+BOOL WinConsole::FactoryResetDialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	switch(uMsg)
+	{
+		case WM_INITDIALOG:
+			SendDlgItemMessage(hwndDlg, IDC_FACTORYRESET_ICON, STM_SETICON, (WPARAM)m_hRunningIcon, 0);
+			SendDlgItemMessage(hwndDlg, IDC_FACTORYRESET_TITLE, WM_SETFONT, (WPARAM)m_hTitleFont, 0);
+			return FALSE;
+
+		case WM_CLOSE:
+			EndDialog(hwndDlg, 0);
+			return TRUE;
+
+		case WM_COMMAND:
+			EndDialog(hwndDlg, LOWORD(wParam));
+			return TRUE;
+
+		default:
+			return FALSE;
+	}
+}
+
+void WinConsole::ResetFactoryDefaults()
+{
+	char szPath[MAX_PATH + 100];
+	char szMessage[1024];
+	char szErrBuf[200];
+
+	g_pOptions->SetPauseDownload(true);
+	g_pOptions->SetPausePostProcess(true);
+
+	char szCommonAppDataPath[MAX_PATH];
+	SHGetFolderPath(NULL, CSIDL_COMMON_APPDATA, NULL, 0, szCommonAppDataPath);
+
+	// delete default directories
+	const char* DefDirs[] = {"nzb", "tmp", "queue", "scripts"};
+	for (int i=0; i < 4; i++)
+	{
+		snprintf(szPath, sizeof(szPath), "%s\\NZBGet\\%s", szCommonAppDataPath, DefDirs[i]);
+		szPath[sizeof(szPath)-1] = '\0';
+
+		// try to delete the directory
+		int iRetry = 10;
+		while (iRetry > 0 && Util::DirectoryExists(szPath) &&
+			!Util::DeleteDirectoryWithContent(szPath, szErrBuf, sizeof(szErrBuf)))
+		{
+			usleep(200 * 1000);
+			iRetry--;
+		}
+
+		if (Util::DirectoryExists(szPath))
+		{
+			snprintf(szMessage, 1024, "Could not delete directory %s:\n%s.\nPlease delete the directory manually and try again.", szPath, szErrBuf);
+			szMessage[1024-1] = '\0';
+			MessageBox(m_hTrayWindow, szMessage, "NZBGet", MB_ICONERROR);
+			return;
+		}
+	}
+
+	// delete old config file in the program's directory
+	snprintf(szPath, sizeof(szPath), "%s\\nzbget.conf", g_pOptions->GetAppDir());
+
+	remove(szPath);
+	Util::GetLastErrorMessage(szErrBuf, sizeof(szErrBuf));
+
+	if (Util::FileExists(szPath))
+	{
+		snprintf(szMessage, 1024, "Could not delete file %s:\n%s.\nPlease delete the file manually and try again.", szPath, szErrBuf);
+		szMessage[1024-1] = '\0';
+		MessageBox(m_hTrayWindow, szMessage, "NZBGet", MB_ICONERROR);
+		return;
+	}
+
+	// delete config file in default directory
+	snprintf(szPath, sizeof(szPath), "%s\\NZBGet\\nzbget.conf", szCommonAppDataPath);
+	szPath[sizeof(szPath)-1] = '\0';
+
+	remove(szPath);
+	Util::GetLastErrorMessage(szErrBuf, sizeof(szErrBuf));
+
+
+	if (Util::FileExists(szPath))
+	{
+		snprintf(szMessage, 1024, "Could not delete file %s:\n%s.\nPlease delete the file manually and try again.", szPath, szErrBuf);
+		szMessage[1024-1] = '\0';
+		MessageBox(m_hTrayWindow, szMessage, "NZBGet", MB_ICONERROR);
+		return;
+	}
+
+	// delete log files in default directory
+	snprintf(szPath, sizeof(szPath), "%s\\NZBGet", szCommonAppDataPath);
+	szPath[sizeof(szPath)-1] = '\0';
+
+	DirBrowser dir(szPath);
+	while (const char* szFilename = dir.Next())
+	{
+		if (Util::MatchFileExt(szFilename, ".log", ","))
+		{
+			char szFullFilename[1024];
+			snprintf(szFullFilename, 1024, "%s%c%s", szPath, PATH_SEPARATOR, szFilename);
+			szFullFilename[1024-1] = '\0';
+
+			remove(szFullFilename);
+
+			// ignore errors
+		}
+	}
+
+	MessageBox(m_hTrayWindow, "The program has been reset to factory defaults.",
+		"NZBGet", MB_ICONINFORMATION);
+
+	bMayStartBrowser = true;
+	Reload();
 }

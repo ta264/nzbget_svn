@@ -876,17 +876,22 @@ var Config = (new function($)
 
 		if (hasoptions)
 		{
-			html += '<div class="' + section.id + ' multiid' + multiid + ' multiset">';
-			html += '<button type="button" class="btn config-delete" data-multiid="' + multiid + '" ' +
+			html += '<div class="' + section.id + ' multiid' + multiid + ' multiset multiset-toolbar">';
+			html += '<button type="button" class="btn config-button config-delete" data-multiid="' + multiid + '" ' +
 				'onclick="Config.deleteSet(this, \'' + setname + '\',\'' + section.id + '\')">Delete ' + setname + multiid + '</button>';
-			html += ' <button type="button" class="btn config-move" data-multiid="' + multiid + '" ' +
+			html += ' <button type="button" class="btn config-button" data-multiid="' + multiid + '" ' +
 				'onclick="Config.moveSet(this, \'' + setname + '\',\'' + section.id + '\', \'up\')">Move Up</button>';
-			html += ' <button type="button" class="btn config-move" data-multiid="' + multiid + '" ' +
+			html += ' <button type="button" class="btn config-button" data-multiid="' + multiid + '" ' +
 				'onclick="Config.moveSet(this, \'' + setname + '\',\'' + section.id + '\', \'down\')">Move Down</button>';
 			if (setname.toLowerCase() === 'feed')
 			{
-				html += ' <button type="button" class="btn config-previewfeed config-feed" data-multiid="' + multiid + '" ' +
+				html += ' <button type="button" class="btn config-button" data-multiid="' + multiid + '" ' +
 					'onclick="Config.previewFeed(this, \'' + setname + '\',\'' + section.id + '\')">Preview Feed</button>';
+			}
+			if (setname.toLowerCase() === 'server')
+			{
+				html += ' <button type="button" class="btn config-button" data-multiid="' + multiid + '" ' +
+					'onclick="Config.testConnection(this, \'' + setname + '\',\'' + section.id + '\')">Test Connection</button>';
 			}
 			html += '<hr>';
 			html += '</div>';
@@ -1257,9 +1262,10 @@ var Config = (new function($)
 				// update captions
 				$('.config-settitle.' + section.id + '.multiid' + oldMultiId, $ConfigData).text(setname + newMultiId);
 				$('.' + section.id + '.multiid' + oldMultiId + ' .config-multicaption', $ConfigData).text(setname + newMultiId + '.');
-				$('.' + section.id + '.multiid' + oldMultiId + ' .config-delete', $ConfigData).text('Delete ' + setname + newMultiId).attr('data-multiid', newMultiId);
-				$('.' + section.id + '.multiid' + oldMultiId + ' .config-feed', $ConfigData).attr('data-multiid', newMultiId);
-				$('.' + section.id + '.multiid' + oldMultiId + ' .config-move', $ConfigData).attr('data-multiid', newMultiId);
+				$('.' + section.id + '.multiid' + oldMultiId + ' .config-delete', $ConfigData).text('Delete ' + setname + newMultiId);
+
+				//update data id
+				$('.' + section.id + '.multiid' + oldMultiId + ' .config-button', $ConfigData).attr('data-multiid', newMultiId);
 
 				//update class
 				$('.' + section.id + '.multiid' + oldMultiId, $ConfigData).removeClass('multiid' + oldMultiId).addClass('multiid' + newMultiId);
@@ -1462,6 +1468,56 @@ var Config = (new function($)
 			getOptionValue(findOptionByName('Feed' + multiid + '.PauseNzb')),
 			getOptionValue(findOptionByName('Feed' + multiid + '.Category')),
 			getOptionValue(findOptionByName('Feed' + multiid + '.Priority')));
+	}
+
+	/*** TEST SERVER ********************************************************************/
+
+	var connecting = false;
+	
+	this.testConnection = function(control, setname, sectionId)
+	{
+		if (connecting)
+		{
+			return;
+		}
+
+		connecting = true;
+		$('#Notif_Config_TestConnectionProgress').fadeIn(function() {
+			var multiid = parseInt($(control).attr('data-multiid'));
+			var timeout = Math.min(parseInt(getOptionValue(findOptionByName('ArticleTimeout'))), 10);
+			RPC.call('testserver', [
+				getOptionValue(findOptionByName('Server' + multiid + '.Host')),
+				parseInt(getOptionValue(findOptionByName('Server' + multiid + '.Port'))),
+				getOptionValue(findOptionByName('Server' + multiid + '.Username')),
+				getOptionValue(findOptionByName('Server' + multiid + '.Password')),
+				getOptionValue(findOptionByName('Server' + multiid + '.Encryption')) === 'yes',
+				getOptionValue(findOptionByName('Server' + multiid + '.Cipher')),
+				timeout
+				],
+				function(errtext) {
+					$('#Notif_Config_TestConnectionProgress').fadeOut(function() {
+						if (errtext == '')
+						{
+							Notification.show('#Notif_Config_TestConnectionOK');
+						}
+						else
+						{
+							AlertDialog.showModal('Connection test failed', errtext);
+						}
+					});
+					connecting = false;
+				},
+				function(message, resultObj) {
+					$('#Notif_Config_TestConnectionProgress').fadeOut(function() {
+						if (resultObj && resultObj.error && resultObj.error.message)
+						{
+							message = resultObj.error.message;
+						}
+						AlertDialog.showModal('Connection test failed', message);
+						connecting = false;
+					});
+				});
+		});
 	}
 
 	/*** SAVE ********************************************************************/
@@ -2498,6 +2554,7 @@ var UpdateDialog = (new function($)
 	var UpdateInfo;
 	var lastUpTimeSec;
 	var installing = false;
+	var logReceived = false;
 
 	this.init = function()
 	{
@@ -2704,7 +2761,7 @@ var UpdateDialog = (new function($)
 		
 		if (!script)
 		{
-			alert('Something is wrong with a package configuration file "package-info.json".');
+			alert('Something is wrong with the package configuration file "package-info.json".');
 			return;
 		}
 
@@ -2740,16 +2797,24 @@ var UpdateDialog = (new function($)
 	{
 		RPC.call('logupdate', [0, 100], function(data)
 			{
-				updateLogTable(data);
-				setTimeout(updateLog, 500);
-			},
-			function()
-			{
-				// rpc-failure: the program has been terminated. Waiting for new instance.
-				setLogContentAndScroll($UpdateProgressDialog_Log.html() + '\n' + 'NZBGet has been terminated. Waiting for restart...');
-				setTimeout(checkStatus, 500);
-			},
-			1000);
+				logReceived = logReceived || data.length > 0;
+				if (logReceived && data.length === 0)
+				{
+					terminated();
+				}
+				else
+				{
+					updateLogTable(data);
+					setTimeout(updateLog, 500);
+				}
+			}, terminated);
+	}
+
+	function terminated()
+	{
+		// rpc-failure: the program has been terminated. Waiting for new instance.
+		setLogContentAndScroll($UpdateProgressDialog_Log.html() + '\n' + 'NZBGet has been terminated. Waiting for restart...');
+		setTimeout(checkStatus, 500);
 	}
 
 	function setLogContentAndScroll(html)
@@ -2787,7 +2852,10 @@ var UpdateDialog = (new function($)
 				{
 					// the old instance is not restarted yet
 					// waiting 0.5 sec. and retrying
-					setTimeout(checkStatus, 500);
+					if ($('#UpdateProgressDialog').is(':visible'))
+					{
+						setTimeout(checkStatus, 500);
+					}
 				}
 				else
 				{
@@ -2802,9 +2870,11 @@ var UpdateDialog = (new function($)
 			function()
 			{
 				// Failure, waiting 0.5 sec. and retrying
-				setTimeout(checkStatus, 500);
-			},
-			1000);
+				if ($('#UpdateProgressDialog').is(':visible'))
+				{
+					setTimeout(checkStatus, 500);
+				}
+			});
 	}
 	
 }(jQuery));

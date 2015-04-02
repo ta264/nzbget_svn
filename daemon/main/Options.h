@@ -251,6 +251,7 @@ private:
 	// Options
 	bool				m_bConfigErrors;
 	int					m_iConfigLine;
+	char*				m_szAppDir;
 	char*				m_szConfigFilename;
 	char*				m_szDestDir;
 	char*				m_szInterDir;
@@ -431,8 +432,9 @@ private:
 	void				LoadScripts(Scripts* pScripts);
 
 public:
-						Options(int argc, char* argv[]);
+						Options();
 						~Options();
+	void				Init(int argc, char* argv[]);
 
 	bool				LoadConfig(OptEntries* pOptEntries);
 	bool				SaveConfig(OptEntries* pOptEntries);
@@ -444,6 +446,7 @@ public:
 	OptEntries*			LockOptEntries();
 	void				UnlockOptEntries();
 	const char*			GetConfigFilename() { return m_szConfigFilename; }
+	const char*			GetAppDir() { return m_szAppDir; }
 	const char*			GetDestDir() { return m_szDestDir; }
 	const char*			GetInterDir() { return m_szInterDir; }
 	const char*			GetTempDir() { return m_szTempDir; }

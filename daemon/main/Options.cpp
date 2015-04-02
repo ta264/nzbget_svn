@@ -487,7 +487,7 @@ Options::Script* Options::Scripts::Find(const char* szName)
 }
 
 
-Options::Options(int argc, char* argv[])
+Options::Options()
 {
 	m_bConfigErrors = false;
 	m_iConfigLine = 0;
@@ -495,6 +495,7 @@ Options::Options(int argc, char* argv[])
 	// initialize options with default values
 	m_bConfigInitialized	= false;
 	m_szConfigFilename		= NULL;
+	m_szAppDir				= NULL;
 	m_szDestDir				= NULL;
 	m_szInterDir			= NULL;
 	m_szTempDir				= NULL;
@@ -626,7 +627,64 @@ Options::Options(int argc, char* argv[])
 	m_szSharingStatusUrl            = NULL;
 	m_szSharingStatusName           = NULL;
 	m_iSharingStatusPollInterval    = 0;
+}
 
+Options::~Options()
+{
+	free(m_szConfigFilename);
+	free(m_szAppDir);
+	free(m_szDestDir);
+	free(m_szInterDir);
+	free(m_szTempDir);
+	free(m_szQueueDir);
+	free(m_szNzbDir);
+	free(m_szWebDir);
+	free(m_szConfigTemplate);
+	free(m_szScriptDir);
+	free(m_szArgFilename);
+	free(m_szAddCategory);
+	free(m_szEditQueueText);
+	free(m_szLastArg);
+	free(m_szControlIP);
+	free(m_szControlUsername);
+	free(m_szControlPassword);
+	free(m_szRestrictedUsername);
+	free(m_szRestrictedPassword);
+	free(m_szAddUsername);
+	free(m_szAddPassword);
+	free(m_szSecureCert);
+	free(m_szSecureKey);
+	free(m_szAuthorizedIP);
+	free(m_szLogFile);
+	free(m_szLockFile);
+	free(m_szDaemonUsername);
+	free(m_szScriptOrder);
+	free(m_szPostScript);
+	free(m_szScanScript);
+	free(m_szQueueScript);
+	free(m_pEditQueueIDList);
+	free(m_szAddNZBFilename);
+	free(m_szAddDupeKey);
+	free(m_szUnrarCmd);
+	free(m_szSevenZipCmd);
+	free(m_szUnpackPassFile);
+	free(m_szExtCleanupDisk);
+	free(m_szParIgnoreExt);
+	free(m_szWebGetFilename);
+	free(m_szSharingStatusUrl);
+	free(m_szSharingStatusName);
+
+	delete m_SharingStatus;
+
+	for (NameList::iterator it = m_EditQueueNameList.begin(); it != m_EditQueueNameList.end(); it++)
+	{
+		free(*it);
+	}
+	m_EditQueueNameList.clear();
+}
+
+void Options::Init(int argc, char* argv[])
+{
 	// Option "ConfigFile" will be initialized later, but we want
 	// to see it at the top of option list, so we add it first
 	SetOption(OPTION_CONFIGFILE, "");
@@ -642,6 +700,7 @@ Options::Options(int argc, char* argv[])
 	char* end = strrchr(szFilename, PATH_SEPARATOR);
 	if (end) *end = '\0';
 	SetOption(OPTION_APPDIR, szFilename);
+	m_szAppDir = strdup(szFilename);
 
 	SetOption(OPTION_VERSION, Util::VersionRevision());
 
@@ -713,59 +772,6 @@ Options::Options(int argc, char* argv[])
 	}
 }
 
-Options::~Options()
-{
-	free(m_szConfigFilename);
-	free(m_szDestDir);
-	free(m_szInterDir);
-	free(m_szTempDir);
-	free(m_szQueueDir);
-	free(m_szNzbDir);
-	free(m_szWebDir);
-	free(m_szConfigTemplate);
-	free(m_szScriptDir);
-	free(m_szArgFilename);
-	free(m_szAddCategory);
-	free(m_szEditQueueText);
-	free(m_szLastArg);
-	free(m_szControlIP);
-	free(m_szControlUsername);
-	free(m_szControlPassword);
-	free(m_szRestrictedUsername);
-	free(m_szRestrictedPassword);
-	free(m_szAddUsername);
-	free(m_szAddPassword);
-	free(m_szSecureCert);
-	free(m_szSecureKey);
-	free(m_szAuthorizedIP);
-	free(m_szLogFile);
-	free(m_szLockFile);
-	free(m_szDaemonUsername);
-	free(m_szScriptOrder);
-	free(m_szPostScript);
-	free(m_szScanScript);
-	free(m_szQueueScript);
-	free(m_pEditQueueIDList);
-	free(m_szAddNZBFilename);
-	free(m_szAddDupeKey);
-	free(m_szUnrarCmd);
-	free(m_szSevenZipCmd);
-	free(m_szUnpackPassFile);
-	free(m_szExtCleanupDisk);
-	free(m_szParIgnoreExt);
-	free(m_szWebGetFilename);
-	free(m_szSharingStatusUrl);
-	free(m_szSharingStatusName);
-
-	delete m_SharingStatus;
-
-	for (NameList::iterator it = m_EditQueueNameList.begin(); it != m_EditQueueNameList.end(); it++)
-	{
-		free(*it);
-	}
-	m_EditQueueNameList.clear();
-}
-
 void Options::Dump()
 {
 	for (OptEntries::iterator it = m_OptEntries.begin(); it != m_OptEntries.end(); it++)
@@ -822,8 +828,12 @@ void Options::InitDefault()
 {
 #ifdef WIN32
 	SetOption(OPTION_MAINDIR, "${AppDir}");
+	SetOption(OPTION_WEBDIR, "${AppDir}\\webui");
+	SetOption(OPTION_CONFIGTEMPLATE, "${AppDir}\\nzbget.conf.template");
 #else
 	SetOption(OPTION_MAINDIR, "~/downloads");
+	SetOption(OPTION_WEBDIR, "");
+	SetOption(OPTION_CONFIGTEMPLATE, "");
 #endif
 	SetOption(OPTION_TEMPDIR, "${MainDir}/tmp");
 	SetOption(OPTION_DESTDIR, "${MainDir}/dst");
@@ -832,8 +842,6 @@ void Options::InitDefault()
 	SetOption(OPTION_NZBDIR, "${MainDir}/nzb");
 	SetOption(OPTION_LOCKFILE, "${MainDir}/nzbget.lock");
 	SetOption(OPTION_LOGFILE, "${DestDir}/nzbget.log");
-	SetOption(OPTION_WEBDIR, "");
-	SetOption(OPTION_CONFIGTEMPLATE, "");
 	SetOption(OPTION_SCRIPTDIR, "${MainDir}/scripts");
 	SetOption(OPTION_WRITELOG, "append");
 	SetOption(OPTION_ROTATELOG, "3");
@@ -942,12 +950,7 @@ void Options::InitOptFile()
 		// search for config file in default locations
 #ifdef WIN32
 		char szFilename[MAX_PATH + 20];
-		GetModuleFileName(NULL, szFilename, MAX_PATH + 1);
-		szFilename[MAX_PATH] = '\0';
-		Util::NormalizePathSeparators(szFilename);
-		char* end = strrchr(szFilename, PATH_SEPARATOR);
-		if (end) end[1] = '\0';
-		strcat(szFilename, "nzbget.conf");
+		snprintf(szFilename, sizeof(szFilename), "%s\\nzbget.conf", m_szAppDir);
 
 		if (!Util::FileExists(szFilename))
 		{
@@ -1656,6 +1659,10 @@ void Options::InitCommandLine(int argc, char* argv[])
 					{
 						m_iEditQueueAction = DownloadQueue::eaHistoryMarkGood;
 					}
+					else if (!strcasecmp(optarg, "S"))
+					{
+						m_iEditQueueAction = DownloadQueue::eaHistoryMarkSuccess;
+					}
 					else
 					{
 						abort("FATAL ERROR: Could not parse value of option 'E'\n");
@@ -1958,6 +1965,7 @@ void Options::PrintUsage(char* com)
 		"       O <name>=<value>     Set post-process parameter\n"
 		"       B                    Mark as bad\n"
 		"       G                    Mark as good\n"
+		"       S                    Mark as success\n"
 		"    <IDs>                   Comma-separated list of file- or group- ids or\n"
 		"                            ranges of file-ids, e. g.: 1-5,3,10-22\n"
 		"    <Names>                 List of names (with options \"FN\" and \"GN\"),\n"

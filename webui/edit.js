@@ -94,8 +94,8 @@ var DownloadsEditDialog = (new function($)
 				renderCellCallback: EditUI.servStatsTableRenderCellCallback
 			});
 
-		$DownloadsFileTable.on('click', 'tbody div.check',
-			function(event) { $DownloadsFileTable.fasttable('itemCheckClick', this.parentNode.parentNode, event); });
+		$DownloadsFileTable.on('click', UISettings.rowSelect ? 'tbody tr' : 'tbody div.check',
+			function(event) { $DownloadsFileTable.fasttable('itemCheckClick', UISettings.rowSelect ? this : this.parentNode.parentNode, event); });
 		$DownloadsFileTable.on('click', 'thead div.check',
 			function() { $DownloadsFileTable.fasttable('titleCheckClick') });
 		$DownloadsFileTable.on('mousedown', Util.disableShiftMouseDown);
@@ -735,7 +735,7 @@ var DownloadsEditDialog = (new function($)
 						}
 						break;
 					case 'split':
-						if (file.ActiveDownloads > 0 || file.FileSizeLo !== file.RemainingSizeLo)
+						if (file.ActiveDownloads > 0 || file.Progress > 0)
 						{
 							splitError = true;
 						}
@@ -1549,6 +1549,7 @@ var HistoryEditDialog = (new function()
 		$('#HistoryEdit_Redownload').click(itemRedownload);
 		$('#HistoryEdit_Param, #HistoryEdit_Dupe, #HistoryEdit_Log').click(tabClick);
 		$('#HistoryEdit_Back').click(backClick);
+		$('#HistoryEdit_MarkSuccess').click(itemSuccess);
 		$('#HistoryEdit_MarkGood').click(itemGood);
 		$('#HistoryEdit_MarkBad').click(itemBad);
 
@@ -1706,6 +1707,8 @@ var HistoryEditDialog = (new function()
 		Util.show('#HistoryEdit_CategoryGroup', hist.Kind !== 'DUP');
 		Util.show('#HistoryEdit_DupGroup', hist.Kind === 'DUP');
 		var dupeCheck = Options.option('DupeCheck') === 'yes';
+		Util.show('#HistoryEdit_MarkSuccess', dupeCheck && ((hist.Kind === 'NZB' && hist.MarkStatus !== 'SUCCESS') || (hist.Kind === 'DUP' && hist.DupStatus !== 'SUCCESS')) &&
+			hist.Status.substr(0, 7) !== 'SUCCESS');
 		Util.show('#HistoryEdit_MarkGood', dupeCheck && ((hist.Kind === 'NZB' && hist.MarkStatus !== 'GOOD') || (hist.Kind === 'DUP' && hist.DupStatus !== 'GOOD')));
 		Util.show('#HistoryEdit_MarkBad', dupeCheck && hist.Kind !== 'URL');
 		Util.show('#HistoryEdit_Dupe', dupeCheck);
@@ -1946,6 +1949,19 @@ var HistoryEditDialog = (new function()
 				saveDupeKey();
 			})
 			: saveDupeKey();
+	}
+
+	function itemSuccess(e)
+	{
+		e.preventDefault();
+		ConfirmDialog.showModal('HistoryEditSuccessConfirmDialog', doItemSuccess, function () { HistoryUI.confirmMulti(false); });
+	}
+
+	function doItemSuccess()
+	{
+		disableAllButtons();
+		notification = '#Notif_History_Marked';
+		RPC.call('editqueue', ['HistoryMarkSuccess', 0, '', [curHist.ID]], completed);
 	}
 
 	function itemGood(e)

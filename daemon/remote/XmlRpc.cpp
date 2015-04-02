@@ -312,6 +312,26 @@ protected:
 	virtual void			UnlockMessages();
 };
 
+class TestServerXmlCommand: public XmlCommand
+{
+private:
+	char*				m_szErrText;
+
+	class TestConnection : public NNTPConnection
+	{
+	protected:
+		TestServerXmlCommand* m_pOwner;
+		virtual void	PrintError(const char* szErrMsg) { m_pOwner->PrintError(szErrMsg); }
+	public:
+						TestConnection(NewsServer* pNewsServer, TestServerXmlCommand* pOwner):
+							NNTPConnection(pNewsServer), m_pOwner(pOwner) {}
+	};
+
+	void				PrintError(const char* szErrMsg);
+public:
+	virtual void		Execute();
+};
+
 
 //*****************************************************************
 // XmlRpcProcessor
@@ -333,6 +353,7 @@ XmlRpcProcessor::~XmlRpcProcessor()
 void XmlRpcProcessor::SetUrl(const char* szUrl)
 {
 	m_szUrl = strdup(szUrl);
+	WebUtil::URLDecode(m_szUrl);
 }
 
 
@@ -370,8 +391,12 @@ void XmlRpcProcessor::Execute()
 void XmlRpcProcessor::Dispatch()
 {
 	char* szRequest = m_szRequest;
+
 	char szMethodName[100];
 	szMethodName[0] = '\0';
+
+	char szRequestId[100];
+	szRequestId[0] = '\0';
 
 	if (m_eHttpMethod == hmGet)
 	{
@@ -383,6 +408,7 @@ void XmlRpcProcessor::Dispatch()
 			if (pend) 
 			{
 				int iLen = (int)(pend - pstart - 1 < (int)sizeof(szMethodName) - 1 ? pend - pstart - 1 : (int)sizeof(szMethodName) - 1);
+				iLen = iLen >= sizeof(szMethodName) ? sizeof(szMethodName) - 1 : iLen;
 				strncpy(szMethodName, pstart + 1, iLen);
 				szMethodName[iLen] = '\0';
 				szRequest = pend + 1;
@@ -404,8 +430,15 @@ void XmlRpcProcessor::Dispatch()
 		int iValueLen = 0;
 		if (const char* szMethodPtr = WebUtil::JsonFindField(m_szRequest, "method", &iValueLen))
 		{
+			iValueLen = iValueLen >= sizeof(szMethodName) ? sizeof(szMethodName) - 1 : iValueLen;
 			strncpy(szMethodName, szMethodPtr + 1, iValueLen - 2);
 			szMethodName[iValueLen - 2] = '\0';
+		}
+		if (const char* szRequestIdPtr = WebUtil::JsonFindField(m_szRequest, "id", &iValueLen))
+		{
+			iValueLen = iValueLen >= sizeof(szRequestId) ? sizeof(szRequestId) - 1 : iValueLen;
+			strncpy(szRequestId, szRequestIdPtr, iValueLen);
+			szRequestId[iValueLen] = '\0';
 		}
 	}
 
@@ -424,7 +457,7 @@ void XmlRpcProcessor::Dispatch()
 		command->SetUserAccess(m_eUserAccess);
 		command->PrepareParams();
 		command->Execute();
-		BuildResponse(command->GetResponse(), command->GetCallbackFunc(), command->GetFault());
+		BuildResponse(command->GetResponse(), command->GetCallbackFunc(), command->GetFault(), szRequestId);
 		delete command;
 	}
 }
@@ -487,17 +520,18 @@ void XmlRpcProcessor::MutliCall()
 		command->SetProtocol(rpXmlRpc);
 		command->PrepareParams();
 		command->Execute();
-		BuildResponse(command->GetResponse(), "", command->GetFault());
+		BuildResponse(command->GetResponse(), "", command->GetFault(), NULL);
 		delete command;
 	}
 	else
 	{
 		cStringBuilder.Append("</data></array>");
-		BuildResponse(cStringBuilder.GetBuffer(), "", false);
+		BuildResponse(cStringBuilder.GetBuffer(), "", false, NULL);
 	}
 }
 
-void XmlRpcProcessor::BuildResponse(const char* szResponse, const char* szCallbackFunc, bool bFault)
+void XmlRpcProcessor::BuildResponse(const char* szResponse, const char* szCallbackFunc,
+	bool bFault, const char* szRequestId)
 {
 	const char XML_HEADER[] = "<?xml version=\"1.0\"?>\n<methodResponse>\n";
 	const char XML_FOOTER[] = "</methodResponse>";
@@ -507,6 +541,8 @@ void XmlRpcProcessor::BuildResponse(const char* szResponse, const char* szCallba
 	const char XML_FAULT_CLOSE[] = "</value></fault>\n";
 
 	const char JSON_HEADER[] = "{\n\"version\" : \"1.1\",\n";
+	const char JSON_ID_OPEN[] = "\"id\" : ";
+	const char JSON_ID_CLOSE[] = ",\n";
 	const char JSON_FOOTER[] = "\n}";
 	const char JSON_OK_OPEN[] = "\"result\" : ";
 	const char JSON_OK_CLOSE[] = "";
@@ -533,6 +569,12 @@ void XmlRpcProcessor::BuildResponse(const char* szResponse, const char* szCallba
 	}
 	m_cResponse.Append(szCallbackHeader);
 	m_cResponse.Append(szHeader);
+	if (!bXmlRpc && szRequestId && *szRequestId)
+	{
+		m_cResponse.Append(JSON_ID_OPEN);
+		m_cResponse.Append(szRequestId);
+		m_cResponse.Append(JSON_ID_CLOSE);
+	}
 	m_cResponse.Append(szOpenTag);
 	m_cResponse.Append(szResponse);
 	m_cResponse.Append(szCloseTag);
@@ -716,6 +758,10 @@ XmlCommand* XmlRpcProcessor::CreateCommand(const char* szMethodName)
 	{
 		command = new ResetServerVolumeXmlCommand();
 	}
+	else if (!strcasecmp(szMethodName, "testserver"))
+	{
+		command = new TestServerXmlCommand();
+	}
 	else
 	{
 		command = new ErrorXmlCommand(1, "Invalid procedure");
@@ -853,6 +899,10 @@ bool XmlCommand::NextParamAsInt(int* iValue)
 		}
 		*iValue = atoi(szParam + 1);
 		m_szRequestPtr = szParam + 1;
+		while (strchr("-+0123456789&", *m_szRequestPtr))
+		{
+			m_szRequestPtr++;
+		}
 		return true;
 	}
 	else if (IsJson())
@@ -899,12 +949,12 @@ bool XmlCommand::NextParamAsBool(bool* bValue)
 
 		if (IsJson())
 		{
-			if (!strcmp(szParam, "true"))
+			if (!strncmp(szParam, "true", 4))
 			{
 				*bValue = true;
 				return true;
 			}
-			else if (!strcmp(szParam, "false"))
+			else if (!strncmp(szParam, "false", 5))
 			{
 				*bValue = false;
 				return true;
@@ -967,7 +1017,7 @@ bool XmlCommand::NextParamAsStr(char** szValue)
 		}
 		szParam++; // skip '='
 		int iLen = 0;
-		char* szParamEnd = strchr(m_szRequestPtr, '&');
+		char* szParamEnd = strchr(szParam, '&');
 		if (szParamEnd)
 		{
 			iLen = (int)(szParamEnd - szParam);
@@ -1502,6 +1552,7 @@ void ListFilesXmlCommand::Execute()
 		"<member><name>Category</name><value><string>%s</string></value></member>\n"
 		"<member><name>Priority</name><value><i4>%i</i4></value></member>\n"			// deprecated, use "Priority" of group instead
 		"<member><name>ActiveDownloads</name><value><i4>%i</i4></value></member>\n"
+		"<member><name>Progress</name><value><i4>%u</i4></value></member>\n"
 		"</struct></value>\n";
 
 	const char* JSON_LIST_ITEM = 
@@ -1523,7 +1574,8 @@ void ListFilesXmlCommand::Execute()
 		"\"DestDir\" : \"%s\",\n"
 		"\"Category\" : \"%s\",\n"
 		"\"Priority\" : %i,\n"				// deprecated, use "Priority" of group instead
-		"\"ActiveDownloads\" : %i\n"
+		"\"ActiveDownloads\" : %i,\n"
+		"\"Progress\" : %i\n"
 		"}";
 
 	int iItemBufSize = 10240;
@@ -1551,12 +1603,15 @@ void ListFilesXmlCommand::Execute()
 				char* xmlCategory = EncodeStr(pFileInfo->GetNZBInfo()->GetCategory());
 				char* xmlNZBNicename = EncodeStr(pFileInfo->GetNZBInfo()->GetName());
 
+				int iProgress = pFileInfo->GetFailedSize() == 0 && pFileInfo->GetSuccessSize() == 0 ? 0 :
+					(int)(1000 - pFileInfo->GetRemainingSize() * 1000 / (pFileInfo->GetSize() - pFileInfo->GetMissedSize()));
+
 				snprintf(szItemBuf, iItemBufSize, IsJson() ? JSON_LIST_ITEM : XML_LIST_ITEM,
 					pFileInfo->GetID(), iFileSizeLo, iFileSizeHi, iRemainingSizeLo, iRemainingSizeHi, 
 					pFileInfo->GetTime(), BoolToStr(pFileInfo->GetFilenameConfirmed()), 
 					BoolToStr(pFileInfo->GetPaused()), pFileInfo->GetNZBInfo()->GetID(), xmlNZBNicename,
 					xmlNZBNicename, xmlNZBFilename, xmlSubject, xmlFilename, xmlDestDir, xmlCategory,
-					pFileInfo->GetNZBInfo()->GetPriority(), pFileInfo->GetActiveDownloads());
+					pFileInfo->GetNZBInfo()->GetPriority(), pFileInfo->GetActiveDownloads(), iProgress);
 				szItemBuf[iItemBufSize-1] = '\0';
 
 				free(xmlNZBFilename);
@@ -1734,7 +1789,7 @@ void NzbInfoXmlCommand::AppendNZBInfoFields(NZBInfo* pNZBInfo)
     const char* szMoveStatusName[] = { "NONE", "FAILURE", "SUCCESS" };
     const char* szScriptStatusName[] = { "NONE", "FAILURE", "SUCCESS" };
     const char* szDeleteStatusName[] = { "NONE", "MANUAL", "HEALTH", "DUPE", "BAD" };
-    const char* szMarkStatusName[] = { "NONE", "BAD", "GOOD" };
+    const char* szMarkStatusName[] = { "NONE", "BAD", "GOOD", "SUCCESS" };
 	const char* szUrlStatusName[] = { "NONE", "UNKNOWN", "SUCCESS", "FAILURE", "UNKNOWN", "SCAN_SKIPPED", "SCAN_FAILURE" };
     const char* szDupeModeName[] = { "SCORE", "ALL", "FORCE" };
 	
@@ -2155,6 +2210,7 @@ EditCommandEntry EditCommandNameMap[] = {
 	{ DownloadQueue::eaHistorySetDupeBackup, "HistorySetDupeBackup" },
 	{ DownloadQueue::eaHistoryMarkBad, "HistoryMarkBad" },
 	{ DownloadQueue::eaHistoryMarkGood, "HistoryMarkGood" },
+	{ DownloadQueue::eaHistoryMarkSuccess, "HistoryMarkSuccess" },
 	{ DownloadQueue::eaHistorySetCategory, "HistorySetCategory" },
 	{ DownloadQueue::eaHistorySetName, "HistorySetName" },
 	{ 0, NULL }
@@ -3579,5 +3635,58 @@ void LoadLogXmlCommand::UnlockMessages()
 	{
 		m_pNZBInfo->UnlockCachedMessages();
 		DownloadQueue::Unlock();
+	}
+}
+
+// string testserver(string host, int port, string username, string password, bool encryption, string cipher, int timeout);
+void TestServerXmlCommand::Execute()
+{
+	const char* XML_RESPONSE_STR_BODY = "<string>%s</string>";
+	const char* JSON_RESPONSE_STR_BODY = "\"%s\"";
+
+	if (!CheckSafeMethod())
+	{
+		return;
+	}
+
+	char* szHost;
+	int iPort;
+	char* szUsername;
+	char* szPassword;
+	bool bEncryption;
+	char* szCipher;
+	int iTimeout;
+
+	if (!NextParamAsStr(&szHost) || !NextParamAsInt(&iPort) || !NextParamAsStr(&szUsername) ||
+		!NextParamAsStr(&szPassword) || !NextParamAsBool(&bEncryption) ||
+		!NextParamAsStr(&szCipher) || !NextParamAsInt(&iTimeout))
+	{
+		BuildErrorResponse(2, "Invalid parameter");
+		return;
+	}
+
+	NewsServer server(0, true, "test server", szHost, iPort, szUsername, szPassword, false, bEncryption, szCipher, 1, 0, 0, 0);
+	TestConnection* pConnection = new TestConnection(&server, this);
+	pConnection->SetTimeout(iTimeout == 0 ? g_pOptions->GetArticleTimeout() : iTimeout);
+	pConnection->SetSuppressErrors(false);
+	m_szErrText = NULL;
+
+	bool bOK = pConnection->Connect();
+
+	char szContent[1024];
+	snprintf(szContent, 1024, IsJson() ? JSON_RESPONSE_STR_BODY : XML_RESPONSE_STR_BODY,
+		bOK ? "" : Util::EmptyStr(m_szErrText) ? "Unknown error" : m_szErrText);
+	szContent[1024-1] = '\0';
+
+	AppendResponse(szContent);
+
+	delete pConnection;
+}
+
+void TestServerXmlCommand::PrintError(const char* szErrMsg)
+{
+	if (!m_szErrText)
+	{
+		m_szErrText = EncodeStr(szErrMsg);
 	}
 }
