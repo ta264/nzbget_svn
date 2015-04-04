@@ -179,3 +179,8 @@ bool SharingStatus::CheckPauseState(bool bCurrentlyPaused, bool bHasJob)
 
 	return bResult;
 }
+
+const char* SharingStatus::GetCurrentSharingUser()
+{
+	return m_szCurrentUser.c_str();
+}

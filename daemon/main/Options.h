@@ -551,6 +551,7 @@ public:
 	void				SetPauseDownload(bool bPauseDownload);
 	bool				GetPauseDownload() const { return m_bPauseDownload; }
 	void                            CheckPauseDownload(bool bHasJob);
+	const char*                     GetCurrentSharingUser();
 	void				SetPausePostProcess(bool bPausePostProcess) { m_bPausePostProcess = bPausePostProcess; }
 	bool				GetPausePostProcess() const { return m_bPausePostProcess; }
 	void				SetPauseScan(bool bPauseScan) { m_bPauseScan = bPauseScan; }

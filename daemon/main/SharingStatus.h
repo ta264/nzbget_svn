@@ -40,6 +40,7 @@ public:
 	~SharingStatus();
 	bool ChangePauseState(bool bCurrentPauseState, bool bWantedPauseState);
 	bool CheckPauseState(bool bCurrentlyPaused, bool bHasJob);
+	const char* GetCurrentSharingUser();
 };
 
 #endif
