@@ -229,7 +229,7 @@ body.navfixed.scrolled .navbar-fixed-top .navbar-inner {
 	padding: 0;
 }
 
-#InfoBlock div:hover {
+#InfoBlock span:hover {
 	color: #fff;
 }
 
@@ -242,7 +242,7 @@ body.navfixed.scrolled .navbar-fixed-top .navbar-inner {
 	filter: alpha(opacity=80);
 }
 
-#InfoBlock div:hover i {
+#InfoBlock span:hover i {
 	opacity: 1;
 	filter: alpha(opacity=100);
 }
