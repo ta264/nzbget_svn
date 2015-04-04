@@ -3512,3 +3512,8 @@ void Options::CheckPauseDownload(bool bHasJob)
 {
 	m_bPauseDownload = m_SharingStatus->CheckPauseState(m_bPauseDownload, bHasJob);
 }
+
+const char* Options::GetCurrentSharingUser()
+{
+	return m_SharingStatus->GetCurrentSharingUser();
+}

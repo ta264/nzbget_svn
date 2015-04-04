@@ -1261,6 +1261,7 @@ void StatusXmlCommand::Execute()
 		"<member><name>UrlCount</name><value><i4>%i</i4></value></member>\n"
 		"<member><name>UpTimeSec</name><value><i4>%i</i4></value></member>\n"
 		"<member><name>DownloadTimeSec</name><value><i4>%i</i4></value></member>\n"
+		"<member><name>SharingUser</name><value><string>%s</string></value></member>\n"
 		"<member><name>ServerPaused</name><value><boolean>%s</boolean></value></member>\n"		// deprecated (renamed to DownloadPaused)
 		"<member><name>DownloadPaused</name><value><boolean>%s</boolean></value></member>\n"
 		"<member><name>Download2Paused</name><value><boolean>%s</boolean></value></member>\n"	// deprecated (same as DownloadPaused)
@@ -1302,6 +1303,7 @@ void StatusXmlCommand::Execute()
 		"\"UrlCount\" : %i,\n"
 		"\"UpTimeSec\" : %i,\n"
 		"\"DownloadTimeSec\" : %i,\n"
+		"\"SharingUser\" : \"%s\",\n"
 		"\"ServerPaused\" : %s,\n"			// deprecated (renamed to DownloadPaused)
 		"\"DownloadPaused\" : %s,\n"
 		"\"Download2Paused\" : %s,\n"		// deprecated (same as DownloadPaused)
@@ -1380,6 +1382,8 @@ void StatusXmlCommand::Execute()
 	int iServerTime = time(NULL);
 	int iResumeTime = g_pOptions->GetResumeTime();
 	bool bFeedActive = g_pFeedCoordinator->HasActiveDownloads();
+
+	const char* szSharingUser = g_pOptions->GetCurrentSharingUser();
 	
 	char szContent[3072];
 	snprintf(szContent, 3072, IsJson() ? JSON_STATUS_START : XML_STATUS_START, 
@@ -1387,7 +1391,7 @@ void StatusXmlCommand::Execute()
 		iForcedSizeHi, iForcedMBytes, iDownloadedSizeLo, iDownloadedSizeHi,
 		iDownloadedMBytes, iArticleCacheLo, iArticleCacheHi, iArticleCacheMBytes,
 		iDownloadRate, iAverageDownloadRate, iDownloadLimit, iThreadCount, 
-		iPostJobCount, iPostJobCount, iUrlCount, iUpTimeSec, iDownloadTimeSec, 
+		iPostJobCount, iPostJobCount, iUrlCount, iUpTimeSec, iDownloadTimeSec, szSharingUser,
 		BoolToStr(bDownloadPaused), BoolToStr(bDownloadPaused), BoolToStr(bDownloadPaused), 
 		BoolToStr(bServerStandBy), BoolToStr(bPostPaused), BoolToStr(bScanPaused),
 		iFreeDiskSpaceLo, iFreeDiskSpaceHi,	iFreeDiskSpaceMB, iServerTime, iResumeTime,
