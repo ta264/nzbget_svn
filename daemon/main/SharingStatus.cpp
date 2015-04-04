@@ -69,7 +69,7 @@ std::string SharingStatus::readUrl(std::string url)
 	return(output);
 }
 
-std::string SharingStatus::UpdateCurrentUser()
+void SharingStatus::UpdateCurrentUser()
 {
 	std::string url = m_szStatusUrl + "status.txt";
 	m_szCurrentUser = readUrl(url);

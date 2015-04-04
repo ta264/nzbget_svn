@@ -33,7 +33,7 @@ private:
 	double m_dPollInterval;
 	bool m_bRemoteClientMode;
 	
-	std::string UpdateCurrentUser();
+	void UpdateCurrentUser();
 	bool Pause();
 	bool TryResume();
 public:
