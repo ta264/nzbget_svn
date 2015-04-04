@@ -23,6 +23,7 @@ private:
 	std::string m_szMyName;
 	std::string m_szStatusUrl;
 	std::string m_szTempDir;
+	std::string m_szCurrentUser;
 	std::string readUrl(std::string szUrl);
 
 	bool m_bEnabled;
@@ -31,6 +32,7 @@ private:
 	double m_dPollInterval;
 	bool m_bRemoteClientMode;
 	
+	std::string UpdateCurrentUser();
 	bool Pause();
 	bool TryResume();
 public:

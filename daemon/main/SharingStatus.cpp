@@ -11,6 +11,7 @@ SharingStatus::SharingStatus(bool bEnabled, char* szMyName, char* szStatusUrl, c
 	// defaults
 	m_bPollResume = true;
 	m_tLastPoll = 0;
+	m_szCurrentUser = "none";
 }
 
 SharingStatus::~SharingStatus() {
@@ -68,6 +69,12 @@ std::string SharingStatus::readUrl(std::string url)
 	return(output);
 }
 
+std::string SharingStatus::UpdateCurrentUser()
+{
+	std::string url = m_szStatusUrl + "status.txt";
+	m_szCurrentUser = readUrl(url);
+}
+
 bool SharingStatus::Pause()
 {
 	// Return if not enabled
@@ -75,8 +82,10 @@ bool SharingStatus::Pause()
 		return true;
 
 	// Tell webserver we've paused.  No response given.
-	std::string url = m_szStatusUrl + "?person=" + m_szMyName + "&action=stop";
+	std::string url = m_szStatusUrl + "share.php?person=" + m_szMyName + "&action=stop";
 	readUrl(url);
+
+	m_szCurrentUser = "none";
 	return true;
 }
 
@@ -87,18 +96,22 @@ bool SharingStatus::TryResume()
 		return true;
 
 	// Query webserver to see if resume allowed
-	std::string url = m_szStatusUrl + "?person=" + m_szMyName + "&action=nzbadd";
+	std::string url = m_szStatusUrl + "share.php?person=" + m_szMyName + "&action=nzbadd";
 	std::string reply = readUrl(url);
 
 	// m_bPollResume = true;
 	if (reply == "ok")
 	{
 		info("SharingStatus: resume allowed");
+		m_szCurrentUser = m_szMyName;
 		return true;
 	}
 	else
 	{
-		info("SharingStatus: busy, resume not allowed");
+		UpdateCurrentUser();
+		std::string message = "SharingStatus: In use by " + m_szCurrentUser +
+			", resume not allowed";
+		info(message.c_str());
 		return false;
 	}
 }
