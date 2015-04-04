@@ -219,7 +219,6 @@ body.navfixed.scrolled .navbar-fixed-top .navbar-inner {
 	margin-right: 10px;
 	padding-top: 2px;
 	cursor: pointer;
-	width: 86px;
 }
 
 #InfoBlock div {
@@ -1876,7 +1875,6 @@ body.phone {
 }
 
 .phone #InfoBlock {
-	width: 190px;
 	height: 42px;
 	margin-right: 0;
 }
