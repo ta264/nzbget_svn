@@ -425,6 +425,12 @@ ul.dropdown-menu > li > a > i {
 		-moz-background-size: 700px 300px;
 		background-size: 700px 300px;
 	}
+    .icon-user {
+	background-image: url("./img/icon-user.png");
+	-webkit-background-size: 16px 16px;
+	-moz-background-size: 16px 16px;
+	background-size: 16px 16px;
+    }
 }
 
 [class^="icon-"],
@@ -434,6 +440,11 @@ ul.dropdown-menu > li > a > i {
 	width: 16px;
 	height: 16px;
 	line-height: 16px;
+}
+
+.icon-user {
+    background-image: url("./img/icon-user.png");
+    background-position: 0;
 }
 
 .icon-empty {

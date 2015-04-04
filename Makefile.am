@@ -261,6 +261,7 @@ webui_FILES = \
 	webui/lib/elycharts.js \
 	webui/lib/elycharts.min.js \
 	webui/img/icons.png \
+	webui/img/icon-user.png \
 	webui/img/icons-2x.png \
 	webui/img/transmit.gif \
 	webui/img/transmit-file.gif \
