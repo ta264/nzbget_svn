@@ -85,7 +85,8 @@ bool SharingStatus::Pause()
 	std::string url = m_szStatusUrl + "share.php?person=" + m_szMyName + "&action=stop";
 	readUrl(url);
 
-	m_szCurrentUser = "none";
+	// Belt and braces - this should always set user to "none".
+	UpdateCurrentUser();
 	return true;
 }
 
