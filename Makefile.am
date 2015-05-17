@@ -186,7 +186,8 @@ AM_CPPFLAGS = \
 EXTRA_DIST = \
 	Makefile.cvs \
 	$(windows_FILES) \
-	$(osx_FILES)
+	$(osx_FILES) \
+	$(linux_FILES)
 
 windows_FILES = \
 	daemon/windows/NTService.cpp \
@@ -241,11 +242,21 @@ osx_FILES = \
 	osx/Resources/Localizable.strings \
 	osx/Resources/Welcome.rtf
 
+linux_FILES = \
+	linux/installer.sh \
+	linux/install-update.sh \
+	linux/package-info.json \
+	linux/build-info.txt \
+	linux/build-nzbget \
+	linux/build-unpack
+
 doc_FILES = \
+	lib/par2/AUTHORS \
+	lib/par2/README \
+	AUTHORS \
 	README \
 	ChangeLog \
-	COPYING \
-	lib/par2/AUTHORS
+	COPYING
 
 exampleconf_FILES = \
 	nzbget.conf

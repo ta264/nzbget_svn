@@ -22,7 +22,13 @@ rem
 
 title Updating NZBGet
 
-set BASE_URL=http://sourceforge.net/projects/nzbget/files
+rem make sure the commands "tasklist", "find" and "ping" use default system programs
+set PATH=%SystemRoot%\system32;%PATH%
+
+if "%1"=="/step2" goto STEP2
+if "%1"=="/step3" goto STEP3
+   
+set BASE_URL=http://nzbget.net/download
 
 if x%NZBUP_BRANCH%==x (
 	echo This script is executed by NZBGet during update and is not supposed to be started manually by user.
@@ -47,7 +53,7 @@ for /f "delims=" %%a in ('type "%NZBOP_WEBDIR%\package-info.json"') do (
 		set UPDATE_INFO_LINK=!UPDATE_INFO_LINK: =!
 		set UPDATE_INFO_LINK=!UPDATE_INFO_LINK:"=!
 		set UPDATE_INFO_LINK=!UPDATE_INFO_LINK:,=!
-		rem deleteing the leading colon
+		rem deleting the leading colon
 		set UPDATE_INFO_LINK=!UPDATE_INFO_LINK:~1%!
 	)
 )
@@ -55,8 +61,6 @@ for /f "delims=" %%a in ('type "%NZBOP_WEBDIR%\package-info.json"') do (
 rem "%~dp0" means the location of the current batch file
 set NZBGET_DIR=%~dp0
 cd %NZBGET_DIR%
-
-if "%1"=="/step2" goto STEP2
 
 rem Determine if NZBGet is running as a service
 set NZBGET_SERVICE=no
@@ -75,7 +79,7 @@ if errorlevel 1 goto DOWNLOAD_FAILURE
 if %NZBUP_BRANCH%==TESTING set VER_FIELD=testing-version
 if %NZBUP_BRANCH%==STABLE set VER_FIELD=stable-version
 set VER=0
-for /f "delims=" %%a in (%TEMP%\NZBGET_UPDATE.txt) do (
+for /f "delims=" %%a in ('type "%TEMP%\NZBGET_UPDATE.txt"') do (
 	set line=%%a
 	set line=!line:%VER_FIELD%=!
 	if not %%a==!line! (
@@ -117,12 +121,27 @@ echo [NZB] QUIT
 exit
 
 
+:STEP3
+echo Third stage
+goto UPDATE
+
 :STEP2
+echo Second stage
+
+:UPDATE
 rem init from command line params
 set NZBGET_DIR=%2
-cd %NZBGET_DIR%
+set NZBGET_DIR=%NZBGET_DIR:"=%
+cd "%NZBGET_DIR%"
 set SETUP_EXE=%3
 set NZBGET_SERVICE=%4
+
+rem in service mode redirecting the output into install-update.log
+if "%1"=="/step2" (
+	if "%NZBGET_SERVICE%"=="yes" (
+		"%TEMP%\nzbget-update.bat" /step3 "%NZBGET_DIR%" %SETUP_EXE% %NZBGET_SERVICE% > "%NZBGET_DIR%\install-update.log" 2>&1
+	)
+)
 
 rem check if nzbget.exe is running
 echo Stopping NZBGet...
@@ -134,7 +153,7 @@ if errorlevel 1 goto WINXPHOME
 set WAIT_SECONDS=30
 :CHECK_RUNNING
 if "%WAIT_SECONDS%"=="0" goto QUIT_FAILURE
-tasklist /FI "IMAGENAME eq nzbget.exe" 2> nul | find /I /N "nzbget.exe" > nul
+tasklist 2> nul | find /I /N "nzbget.exe" > nul
 if "%ERRORLEVEL%"=="0" (
 	ping 127.0.0.1 -n 2 -w 1000 > nul
 	set /a "WAIT_SECONDS=%WAIT_SECONDS%-1"
@@ -152,9 +171,9 @@ ping 127.0.0.1 -n 31 -w 1000 > nul
 
 echo Installing new version...
 echo.
-%TEMP%\%SETUP_EXE% /S
+"%TEMP%\%SETUP_EXE%" /S
 
-del %TEMP%\%SETUP_EXE%
+del "%TEMP%\%SETUP_EXE%"
 
 echo Starting NZBGet...
 

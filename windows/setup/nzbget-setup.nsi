@@ -22,6 +22,13 @@
  *
  */
 
+; This is setup script for NZBGet for Windows. To compile the script you need
+; NSIS (http://nsis.sourceforge.net). Moreover a special build of NSIS must be
+; installed over standard NSIS installation. This special build provides
+; extra logging used in this script: http://nsis.sourceforge.net/Special%5FBuilds.
+; Also requires NSIS Simple Service Plugin:
+; http://nsis.sourceforge.net/NSIS_Simple_Service_Plugin
+
 
 ;--------------------------------
 ;Includes
@@ -29,9 +36,6 @@
 !include "MUI2.nsh"
 !include "FileFunc.nsh"
 !include "LogicLib.nsh"
-
-; Also requires NSIS Simple Service Plugin:
-; http://nsis.sourceforge.net/NSIS_Simple_Service_Plugin
 
 ;--------------------------------
 ;General
@@ -43,7 +47,7 @@ OutFile "..\nzbget-setup.exe"
 InstallDir "$PROGRAMFILES\NZBGet"
 
 ;Get installation folder from registry if available
-InstallDirRegKey HKCU "Software\NZBGet" ""
+InstallDirRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\NZBGet" "InstallLocation"
 
 !ifndef DEBUG_UI
 ;Request application privileges for Windows Vista
@@ -91,10 +95,16 @@ RequestExecutionLevel admin
 
 Section "Main"
 
+Delete "$INSTDIR\install.log"
+
+; Command "LogSet" requires a special build of NSIS supporting extended logging:
+; http://nsis.sourceforge.net/Special%5FBuilds
+LogSet on
+
 SetOutPath "$INSTDIR"
 
 ; Stop NZBGet (if running)
-ReadRegStr $R1 HKCU "Software\NZBGet" ""
+ReadRegStr $R1 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\NZBGet" "InstallLocation"
 ${If} $R1 != ""
 ${AndIf} ${FileExists} "$R1\nzbget.exe"
   Delete "$R1\nzbget.exe"
@@ -129,9 +139,6 @@ File /r "..\NZBGet\*"
 CreateDirectory "$SMPROGRAMS\NZBGet"
 CreateShortCut "$SMPROGRAMS\NZBGet\NZBGet.lnk" "$INSTDIR\nzbget.exe"
 CreateShortCut "$SMPROGRAMS\NZBGet\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
-
-; Store installation folder
-WriteRegStr HKCU "Software\NZBGet" "" $INSTDIR
 
 ; Add control panel entry for Uninstall
 WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\NZBGet" "DisplayName" "NZBGet"

@@ -980,6 +980,30 @@ void Util::ExpandFileName(const char* szFilename, char* szBuffer, int iBufSize)
 #endif
 }
 
+void Util::GetExeFileName(const char* argv0, char* szBuffer, int iBufSize)
+{
+#ifdef WIN32
+	GetModuleFileName(NULL, szBuffer, iBufSize);
+#else
+	// Linux
+	int r = readlink("/proc/self/exe", szBuffer, iBufSize-1);
+	if (r > 0)
+	{
+		szBuffer[r] = '\0';
+		return;
+	}
+	// FreeBSD
+	r = readlink("/proc/curproc/file", szBuffer, iBufSize-1);
+	if (r > 0)
+	{
+		szBuffer[r] = '\0';
+		return;
+	}
+
+	ExpandFileName(argv0, szBuffer, iBufSize);
+#endif
+}
+
 void Util::FormatFileSize(char * szBuffer, int iBufLen, long long lFileSize)
 {
 	if (lFileSize > 1024 * 1024 * 1000)
@@ -1317,7 +1341,7 @@ inline int days_from_0(int year)
 }
 inline int days_from_1970(int year)
 {
-  static const int days_from_0_to_1970 = days_from_0(1970);
+  static const int days_from_0_to_1970 = 719162; // days_from_0(1970);
   return days_from_0(year) - days_from_0_to_1970;
 }
 inline int days_from_1jan(int year,int month,int day)
@@ -1356,17 +1380,17 @@ inline time_t internal_timegm(tm const *t)
   return result;
 }
 
+time_t Util::Timegm(tm const *t)
+{
+	return internal_timegm(t);
+}
+
 // prevent PC from going to sleep
 void Util::SetStandByMode(bool bStandBy)
 {
 #ifdef WIN32
 	SetThreadExecutionState((bStandBy ? 0 : ES_SYSTEM_REQUIRED) | ES_CONTINUOUS);
 #endif
-}
-
-time_t Util::Timegm(tm const *t)
-{
-	return internal_timegm(t);
 }
 
 static unsigned long crc32_tab[] = {
@@ -2082,8 +2106,10 @@ void WebUtil::URLDecode(char* raw)
 					p++;
 					unsigned char c1 = *p++;
 					unsigned char c2 = *p++;
-					c1 = '0' <= c1 && c1 <= '9' ? c1 - '0' : 'A' <= c1 && c1 <= 'F' ? c1 - 'A' + 10 : 0;
-					c2 = '0' <= c2 && c2 <= '9' ? c2 - '0' : 'A' <= c2 && c2 <= 'F' ? c2 - 'A' + 10 : 0;
+					c1 = '0' <= c1 && c1 <= '9' ? c1 - '0' : 'A' <= c1 && c1 <= 'F' ? c1 - 'A' + 10 :
+						'a' <= c1 && c1 <= 'f' ? c1 - 'a' + 10 : 0;
+					c2 = '0' <= c2 && c2 <= '9' ? c2 - '0' : 'A' <= c2 && c2 <= 'F' ? c2 - 'A' + 10 :
+						'a' <= c2 && c2 <= 'f' ? c2 - 'a' + 10 : 0;
 					unsigned char ch = (c1 << 4) + c2;
 					*output++ = (char)ch;
                     break;
