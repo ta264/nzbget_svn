@@ -251,8 +251,6 @@ linux_FILES = \
 	linux/build-unpack
 
 doc_FILES = \
-	lib/par2/AUTHORS \
-	lib/par2/README \
 	AUTHORS \
 	README \
 	ChangeLog \
